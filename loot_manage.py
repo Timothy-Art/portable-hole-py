@@ -5,7 +5,7 @@ import math
 import logging
 import re
 # logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
-_idcol = 0
+_idcol = 10
 _idcurrent = 0
 
 #==loot_data structure========================================
