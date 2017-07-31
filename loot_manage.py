@@ -135,7 +135,7 @@ def list_untithed(data):
 #   misc.........(string) miscellaneous information
 #   magic........(string) if object is magic
 #   magic_effect.(string) effects of magic
-#   consigned....(int) whether to put the item on consignement
+#   consigned....(int) whether to put the item on consignment
 #-------------------------------------------------------------
 def add_item(data, item, quantity, gp, magic, misc = 'NA', magic_effect='NA', consigned=0, date=None):
     global _idcurrent
@@ -1000,9 +1000,9 @@ while True:
         "(1)  add [qty] [item] [,...] - Adds an item to the loot stash. [item] must be supplied, but [qty] will default to 1. Additional items can be supplied if separated with a comma.\n\n"+
         "(2)  remove [qty] [item] [,...] - Removes an item from the stash. [item] must be supplied, but [qty] will default to 1. Additional items can be supplied if separated with a comma.\n\n"+
         "(3)  sell [qty] [consigned] [item] [@ price] [,...] - Sells an item from the stash. [item] must be supplied, [qty] will default to 1, [@ price] will specify a price to sell at. Specify 'consigned' if you are selling off a consigned item. Additional items can be supplied if separated with a comma.\n\n"+
-        "(4)  buy [qty] [item] [@price] [,...] - Buys an item. [item] must be supplied, [qty] will default to 1, [@ price] will specify a price to sell at. Additional items can be supplied if separated with a comma.\n\n"+
+        "(4)  buy [qty] [item] [@price] [,...] - Buys an item. [item] must be supplied, [qty] will default to 1, [@ price] will specify a price to buy at. Additional items can be supplied if separated with a comma.\n\n"+
         "(5)  list [misc] [magic] [itemName] [,...] - Searches your loot sheet for specified items and lists them off to you. Additional searches can be supplied if separated with a comma and will be appended to the list.\n\n"+
-        "(6)  consign [qty] [item] [,...] - Puts an item on your loot sheet on consignement. [item] must be supplied, [qty] will default to 1. Additional items can be supplied if separated with a comma.\n\n"+
+        "(6)  consign [qty] [item] [,...] - Puts an item on your loot sheet on consignment. [item] must be supplied, [qty] will default to 1. Additional items can be supplied if separated with a comma.\n\n"+
         "(7)  save - Saves new transactions to a file.\n\n"+
         "(8)  inventory - Lists your entire inventory.\n\n"+
         "(9)  balance - Prints off your net worth and your liquid inventory (Coins + Gems).\n\n"+
