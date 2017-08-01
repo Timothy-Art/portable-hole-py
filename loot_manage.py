@@ -4,7 +4,7 @@ import os
 import math
 import logging
 import re
-# logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
 _idcol = 10
 _idcurrent = 0
 
@@ -249,8 +249,12 @@ def build_inventory(data):
             inventory.setdefault(name, [0,0])
 
         inventory[name] = [inventory[name][0] + i[2], i[3]]
+
+    keys = [k for k in inventory.keys()]
+    for name in keys:
         if inventory[name][0] == 0:
             del inventory[name]
+
     return(inventory)
 #=============================================================
 
@@ -316,7 +320,7 @@ def sell(data, item, quantity, price, magic_effect='NA', misc='NA'):
 #   date.............(string) date purchased
 #-------------------------------------------------------------
 def purchase(data, item, gems, stock, paid, quantity, gp, magic, misc='NA', effect='NA', date=None):
-    length = len(data)
+    length = len(data)-1
     money_out = []
     if gems == 1:
         money = list_money(data)
@@ -350,10 +354,11 @@ def purchase(data, item, gems, stock, paid, quantity, gp, magic, misc='NA', effe
                 logging.debug(i + ' | ' + str(money[i][1]) + ' | ' + str(amount) + ' = ' + str(paid))
 
         if paid > 0:
+            logging.debug("paid: " + str(paid))
+
             for i in range(length, len(data)-1):
                 data.pop()
-            print(paid)
-            return("Need smaller denominations")
+            return("Need "+str(paid)+"GP in smaller denominations")
     else:
         return("Insufficient Funds")
 
@@ -428,7 +433,7 @@ def add(data, params):
             newval = input()
             while not val:
                 try:
-                    val = int(newval)
+                    val = float(newval)
                 except ValueError:
                     print("Please enter a numeric value:")
                     newval = input()
@@ -522,22 +527,41 @@ def remove(data, params):
 
                     try:
                         magic_effect = l[int(magic_effect)][2]
+                        found = query_list(found, 8, '==', magic_effect)
                     except:
                         print("That's not in the stash.")
-                        return(out)
             elif magic_effect in ["no", "No", "n", "N"]:
                 magic_effect = ''
+                found = query_list(found, 7, '==', 0)
 
             magic = 1 if magic_effect else 0
             magic_effect = " "+magic_effect if magic_effect else ""
 
+            price_list = build_inventory(found)
+            prices = [k for k in price_list.keys()]
+            logging.debug(prices)
+            if len(prices) > 1:
+                print("There are price variations for " + name + ", use the numbers to make a selection.")
+                for i, k in enumerate(prices):
+                    print(str(i+1) + ": " + str(k))
+                price_selection = input()
+                #print(l)
 
-            if found and name+magic_effect in item_dict.keys() and -qty <= item_dict[name+magic_effect][0]:
-                val = found[0][3]
-                add_item(data, name, qty, val, magic, found[0][6], magic_effect.strip())
-                out = out + append + str(-qty) + " " + name + magic_effect + " removed from the stash."
+                try:
+                    price_selection = int(price_selection)-1
+                    price_selection = prices[price_selection]
+                    logging.debug(price_selection)
+                except:
+                    print("That's not in the stash.")
             else:
-                out += append + "you don't have enough", name
+                price_selection = prices[0]
+
+            if found and price_selection in item_dict.keys() and -qty <= item_dict[price_selection][0]:
+                val = price_list[price_selection][1]
+                add_item(data, name, qty, val, magic, found[0][6], magic_effect.strip())
+                out = out + append + str(-qty) + " " + price_selection + " removed from the stash."
+            else:
+                out += append + "you don't have enough " + name
             #----------------------------------------------------------------------
             append = ", "
         else:
@@ -697,7 +721,7 @@ def buyItem(data, params):
                 val = False
                 while not val:
                     try:
-                        val = int(newval)
+                        val = float(newval)
                     except ValueError:
                         print("Please enter the correct value:")
                         newval = input()
@@ -708,7 +732,7 @@ def buyItem(data, params):
             newval = input()
             while not val:
                 try:
-                    val = int(newval)
+                    val = float(newval)
                 except ValueError:
                     print("Please enter a numeric value:")
                     newval = input()
