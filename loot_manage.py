@@ -997,7 +997,7 @@ def consignItem(data, params):
             logging.debug('Check count: ' + str(item_dict[name+magic_effect][0]))
 
             if item_dict[name+magic_effect][0] >= -qty:
-                add_item(data, name, qty, found[0][3], magic_effect != '', misc, 'NA' if magic_effect == '' else magic_effect.strip(), consigned = 1)
+                add_item(data, name, -qty, found[0][3], magic_effect != '', misc, 'NA' if magic_effect == '' else magic_effect.strip(), consigned = 1)
                 out += append + str(qty) + " " + name + magic_effect + " consigned"
                 append = ", "
             else:

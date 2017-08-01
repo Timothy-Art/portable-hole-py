@@ -9,9 +9,9 @@ Longsword,0,-1,15,-15.0,-1,Weapon,0,NA,0
 Longsword,0,-1,15,-15.0,-1,Weapon,0,NA,0
 Longsword,0,1,15,15.0,-1,Weapon,0,NA,0
 Longsword,0,1,20.0,20.0,-1,Weapon,0,NA,0
-Longsword,0,-1,20.0,-20.0,-1,Weapon,False,NA,0
+Longsword,0,-1,20.0,-20.0,-1,Weapon,NA,NA,0
 GP,0,20,1,20.0,0,Coin,0,NA,0
-Longsword,0,-1,15,-15.0,-1,Weapon,False,NA,0
+Longsword,0,-1,15,-15.0,-1,Weapon,NA,NA,0
 GP,0,10,1,10.0,0,Coin,0,NA,0
 Longsword,0,2,15,30.0,-1,Weapon,0,NA,0
 Longsword,0,1,20.0,20.0,-1,Weapon,0,NA,0
@@ -19,8 +19,11 @@ Longsword,0,-1,20.0,-20.0,-1,Weapon,0,NA,0
 Longsword,0,-2,15,-30.0,-1,Weapon,0,NA,0
 Longsword,0,2,15,30.0,-1,Weapon,0,NA,0
 Longsword,0,1,20.0,20.0,-1,Weapon,0,NA,0
-Longsword,0,-2,15,-30.0,-1,Weapon,False,NA,0
+Longsword,0,-2,15,-30.0,-1,Weapon,NA,NA,0
 GP,0,20,1,20.0,0,Coin,0,NA,0
-Longsword,0,-1,20.0,-20.0,-1,Weapon,False,NA,0
+Longsword,0,-1,20.0,-20.0,-1,Weapon,NA,NA,0
 GP,0,20,1,20.0,0,Coin,0,NA,0
 Longsword,0,-1,15,-15.0,-1,Weapon,1,+1,0
+Longsword,0,5,15,75.0,-1,Weapon,0,NA,0
+Longsword,0,2,20.0,40.0,-1,Weapon,0,NA,0
+Longsword,0,1,15,15.0,-1,Weapon,False,NA,1
