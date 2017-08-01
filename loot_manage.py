@@ -4,7 +4,7 @@ import os
 import math
 import logging
 import re
-logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
 _idcol = 10
 _idcurrent = 0
 
@@ -281,25 +281,29 @@ def tithe(data, pct):
 #   quantity.........(int) the number of items
 #   price............(int) the sale price of the item
 #-------------------------------------------------------------
-def sell(data, item, quantity, price, magic_effect='NA', misc='NA'):
+def sell(data, item, val, quantity, price, magic_effect='NA', misc='NA'):
     item_list = query_list(data, 0, '==', item)
     item_list = query_list(item_list, 8, '==', magic_effect)
+    item_list = query_list(item_list, 3, '==', val)
     item_dict = build_inventory(item_list)
+
+    logging.debug(item_list)
 
     if magic_effect != 'NA':
         itemName = item + " " + magic_effect
     else:
         itemName = item
 
+    logging.debug(itemName)
     logging.debug(item_dict)
 
     logging.debug('Check count: ' + str(item_dict[itemName][0]))
 
     if item_dict[itemName][0] >= quantity:
-        add_item(data, item, -quantity, item_list[0][3], magic_effect != 'NA', misc,
+        add_item(data, item, -quantity, val, magic_effect != 'NA', misc,
                   magic_effect)
         add_item(data, 'GP', price*quantity, 1, 0, 'Coin', 'NA')
-        return(item_list[0][3]*quantity)
+        return(price*quantity)
     else:
         raise Exception('Insufficient Quantity')
 #=============================================================
@@ -448,7 +452,7 @@ def add(data, params):
 
         if magic_effect in ["yes", "Yes", "y", "Y"]:
             print("Effect?")
-            magic_effect = input()
+            magic_effect = " "+input()
         elif magic_effect in ["no", "No", "n", "N"]:
             magic_effect = ''
 
@@ -460,7 +464,7 @@ def add(data, params):
 
         misc = misc if misc else found_misc
 
-        add_item(data, name, qty, val, magic, misc, magic_effect)
+        add_item(data, name, qty, val, magic, misc, magic_effect.strip())
         out = out + append + str(qty) + " " + name + magic_effect + " added to the stash."
         append = ", "
     out = out
@@ -527,21 +531,30 @@ def remove(data, params):
 
                     try:
                         magic_effect = l[int(magic_effect)][2]
-                        found = query_list(found, 8, '==', magic_effect)
                     except:
                         print("That's not in the stash.")
+                        continue
             elif magic_effect in ["no", "No", "n", "N"]:
                 magic_effect = ''
-                found = query_list(found, 7, '==', 0)
 
             magic = 1 if magic_effect else 0
-            magic_effect = " "+magic_effect if magic_effect else ""
+            if magic_effect:
+                magic_effect = " " + magic_effect
+                found = query_list(found, 8, '==', magic_effect.strip())
+            else:
+                magic_effect = ""
+                found = query_list(found, 7, '==', 0)
+                if len(found) == 0:
+                    print("You have no mundane " + name)
+                    continue
 
             price_list = build_inventory(found)
             prices = [k for k in price_list.keys()]
+            logging.debug(found)
+            logging.debug(price_list)
             logging.debug(prices)
             if len(prices) > 1:
-                print("There are price variations for " + name + ", use the numbers to make a selection.")
+                print("There are price variations for " + name + magic_effect + ", use the numbers to make a selection.")
                 for i, k in enumerate(prices):
                     print(str(i+1) + ": " + str(k))
                 price_selection = input()
@@ -553,8 +566,13 @@ def remove(data, params):
                     logging.debug(price_selection)
                 except:
                     print("That's not in the stash.")
-            else:
+                    continue
+            elif len(prices) == 1:
                 price_selection = prices[0]
+            else:
+                out += append + "you don't have enough " + name
+                append = ", "
+                continue
 
             if found and price_selection in item_dict.keys() and -qty <= item_dict[price_selection][0]:
                 val = price_list[price_selection][1]
@@ -645,31 +663,67 @@ def sellItem(data, params):
                     try:
                         magic_effect = " " + l[int(magic_effect)][2]
                     except:
-                        out += append + "you don't have " + str(qty) + " " + name
+                        print("That's not in the stash.")
                         continue
             elif magic_effect in ["no", "No", "n", "N"]:
                 magic_effect = ""
+
+            if magic_effect:
+                magic_effect = " " + magic_effect
+                found = query_list(found, 8, '==', magic_effect.strip())
+            else:
+                magic_effect = ""
+                found = query_list(found, 7, '==', 0)
+                if len(found) == 0:
+                    print("You have no mundane " + name)
+                    continue
+
+            price_list = build_inventory(found)
+            prices = [k for k in price_list.keys()]
+            logging.debug(prices)
+            if len(prices) > 1:
+                print("There are price variations for " + name + magic_effect + ", use the numbers to make a selection.")
+                for i, k in enumerate(prices):
+                    print(str(i+1) + ": " + str(k))
+                price_selection = input()
+                #print(l)
+
+                try:
+                    price_selection = int(price_selection)-1
+                    price_selection = prices[price_selection]
+                    logging.debug(price_selection)
+                except:
+                    print("That's not in the stash.")
+                    continue
+            elif len(prices) == 1:
+                price_selection = prices[0]
+            else:
+                out += append + "you don't have enough " + name
+                append = ", "
+                continue
 
             misc = found[0][6]
 
             while not price:
                 try:
                     if consign == -1:
-                        print("How much are you selling the " + name + magic_effect + " for?")
+                        print("How much are you selling the " + price_selection + " for?")
                         price = float(input())
                     else:
-                        print("How much are you receiving for the " + name + magic_effect + "?")
+                        print("How much are you receiving for the " + price_selection + "?")
                         price = float(input())
                 except:
                     print("Please enter a number in GP.")
 
             try:
                 if consign == -1:
-                    sell(data, name, qty, int(price), "NA" if magic_effect == "" else magic_effect.strip(), misc)
+                    val = price_list[price_selection][1]
+                    sell(data, name, val, qty, int(price), "NA" if magic_effect == "" else magic_effect.strip(), misc)
                     out += append + str(qty) + " " + name + magic_effect + " sold for " + str(qty*int(price)) + "GP"
                 else:
-                    add_item(data, name, qty, found[0][3], magic_effect != '', misc, 'NA' if magic_effect == '' else magic_effect.strip(), consigned = 1)
-                    sell(data, name, qty, int(price), "NA" if magic_effect == "" else magic_effect.strip(), misc)
+                    val = price_list[price_selection][1]
+                    add_item(data, name, qty, val, magic_effect != '', misc, "NA" if magic_effect == "" else magic_effect.strip(), consigned = 1)
+                    sell(data, name, val, qty, int(price), "NA" if magic_effect == "" else magic_effect.strip(), misc)
                     out += append  + "received " + str(qty*int(price)) + "GP for " + str(qty) + " " + name + magic_effect
 
                 append = ", "
