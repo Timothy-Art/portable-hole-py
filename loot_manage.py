@@ -234,15 +234,23 @@ def build_inventory(data):
     inventory = {}
     for i in data:
         if i[7] == 1:
-            inventory.setdefault(i[0]+' '+i[8], [0, 0])
-            inventory[i[0]+' '+i[8]] = [inventory[i[0]+' '+i[8]][0] + i[2], i[3]]
-            if inventory[i[0]+' '+i[8]][0] == 0:
-                del inventory[i[0]+' '+i[8]]
+            # magic equipment
+            name = i[0]+' '+i[8]
         else:
-            inventory.setdefault(i[0], [0, 0])
-            inventory[i[0]] = [inventory[i[0]][0] + i[2], i[3]]
-            if inventory[i[0]][0] == 0:
-                del inventory[i[0]]
+            # non-magic
+            name = i[0]
+
+        logging.debug(name)
+
+        if name not in inventory.keys():
+            inventory[name] = [0,0]
+        elif inventory[name][1] != i[3]:
+            name = name+' '+str(i[3])+'GP'
+            inventory.setdefault(name, [0,0])
+
+        inventory[name] = [inventory[name][0] + i[2], i[3]]
+        if inventory[name][0] == 0:
+            del inventory[name]
     return(inventory)
 #=============================================================
 
@@ -250,14 +258,15 @@ def build_inventory(data):
 # tithes automatically
 # Parameters:
 #   data.............(list) the loot items
+#   pct..............(float) percentage to tithe
 #-------------------------------------------------------------
-def tithe(data):
+def tithe(data, pct):
     untithed = get_balance(list_untithed(data))
     add_item(data, 'GP', untithed * 0.025, 1, 0, Tithe, 'NA')
     for i in range(len(data)):
         if (data[i][6]== 'Coin' or data[i][6] == 'Gem') and data[i][5] == 0:
             data[i][5] = 1
-    return(untithed*0.025)
+    return(untithed*(pct/100))
 #=============================================================
 
 #==sell=======================================================
@@ -776,6 +785,10 @@ def listItem(data, params):
             loot = list_magic(data)
             param.difference_update(['Magic', 'magic'])
 
+        if 'Untithed' in param or 'untithed' in param:
+            loot = list_untithed(data)
+            param.difference_update(['Untithed', 'untithed'])
+
         if 'Consigned' in param or 'consigned' in param:
             loot = list_consigned(loot)
             param.difference_update(['Consigned', 'consigned'])
@@ -926,18 +939,25 @@ def buildLootTable(inventory):
     if len(inventory) == 0:
         return("Item | Qty | Value \n-----|-----|-------")
 
+    total = sum(map(lambda x : inventory[x][0]*inventory[x][1] if inventory[x][1] != 'NA' else 0, inventory.keys()))
+    total = str(round(total, 3))
+    logging.debug(total)
     itemLen = max(min(len(max(inventory.keys(), key=len)), 50), 4)
-    qtyLen = max(len(str(inventory[max(inventory, key=lambda x : len(str(inventory[x][0])))][0])), 3)
-    valLen = max(len(str(inventory[max(inventory, key=lambda x : len(str(inventory[x][1])))][1])),5)
+    qtyLen = max(len(str(inventory[max(inventory, key=lambda x : len(str(inventory[x][0])))][0])), 5)
+    valLen = max(len(str(inventory[max(inventory, key=lambda x : len(str(inventory[x][1])))][1])),len(total), 5)
 
     out = "Item"+" "*(itemLen-4)+" | Qty"+" "*(qtyLen-3)+" | Value"+" "*(valLen-5)+"\n"+"-"*itemLen+"-|-"+"-"*qtyLen+"-|-"+"-"*valLen+"\n"
 
     for item in inventory.keys():
         qty = str(inventory[item][0])
         val = str(inventory[item][1])
+        out += item+" "*(itemLen-len(item))+" | "+" "*(qtyLen-len(qty))+qty+" | "+" "*(valLen-len(val))+val+"\n"
 
-        out = out + item+" "*(itemLen-len(item))+" | "+" "*(qtyLen-len(qty))+qty+" | "+" "*(valLen-len(val))+val+"\n"
+    out += "-"*(itemLen + qtyLen + valLen + 6)+"\n"
+    out += " "*(itemLen+3+qtyLen-5)+"Total"+" | "+" "*(valLen-len(total))+total
     return(out)
+
+#inventory = build_inventory(loot_data)
 
 print("====================================================\\\n"+
       "Welcome to PORTABLE HOLE(tm) Loot Management Systems \\\n"+
