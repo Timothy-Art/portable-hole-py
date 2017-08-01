@@ -948,6 +948,11 @@ selection = 0
 
 while selection != '1' and selection != '2':
     selection = input()
+    if selection in ['e', 'exit', 'E', 'Exit']:
+        print('Bye :)')
+        selection = 'e'
+        break
+
 
 if selection == '2':
     saves = os.listdir("./saves")
@@ -989,7 +994,7 @@ if selection == '1':
 logging.debug("_idcol = " + str(_idcol))
 message = ""
 
-while True:
+while selection != 'e':
     print("How may I serve you?")
     command = input()
     command = command.split(' ', 1)
@@ -1012,6 +1017,7 @@ while True:
     elif fn in ["exit", "Exit", "e", "E"]:
         print("Bye :)")
         break
+        selection = 'e'
     elif fn in ["hello", "Hello", "hi", "Hi"]:
         print("Greetings!")
         continue

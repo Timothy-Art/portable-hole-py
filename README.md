@@ -100,5 +100,8 @@ Lists your entire inventory.
 #### balance, b
 Prints off your net worth and your liquid inventory (Coins + Gems).
 
+#### help, h
+Prints list of available commands. 
+
 #### exit, e
 Exits the loot manager.
