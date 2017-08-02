@@ -194,7 +194,15 @@ def format_list(data):
                 try:
                     data[i][j] = float(data[i][j])
                 except ValueError:
-                    data[i][j] = 'NA'
+                    try:
+                        if data[i][j] == 'True':
+                            data[i][j] = True
+                        elif data[i][j] == 'False':
+                            data[i][j] = False
+                        else:
+                            data[i][j] = 'NA'
+                    except ValueError:
+                        data[i][j] = 'NA'
         data[i].append(_idcurrent)
         _idcurrent += 1
 #=============================================================
