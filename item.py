@@ -62,7 +62,7 @@ class Consumable(MagicItem):
         self.uses = int(uses)
         self.usage = 0
         self.empty = 0 <= uses
-        super().__init(**kwargs)
+        super().__init__(**kwargs)
 
     def remaining(self):
         """
@@ -104,3 +104,108 @@ class Consumable(MagicItem):
             return self.usage - usage
 
         return 0
+
+
+def get_collection(kind=None):
+    """
+    Factory function to return a collection class based on the kind requested.
+
+    :param kind: Consumable or None
+    :return: Collection class
+    """
+
+    if kind == "Consumable":
+        base = Consumable
+    else:
+        base = object
+
+    class Collection(base):
+        """
+        A Collection of Items, MagicItems, or Consumables of the same type.
+        """
+
+        def __init__(self, what, qty):
+            """
+            Creates a new Collection.
+
+            :param what: The Item, MagicItem, or Consumable to collect.
+            :param qty: The number of Items in the collection.
+            """
+            self.what = what
+            self.name = what.name
+            self.qty = int(qty)
+            self.weight = what.weight * self.qty
+            self.value = what.value * self.qty
+
+            self.magical = type(what) == 'MagicItem'
+            self.consumable = type(what) == 'Consumable'
+
+            if self.magic:
+                self.magic = what.magic
+
+            if self.consumable:
+                self.uses = what.uses * self.qty
+                self.usage = 0
+                self.empty = 0 <= self.uses
+
+        def add(self, qty, item):
+            """
+            Adds to the collection.
+
+            :param qty: The number of items to add.
+            :param item: A supplied item to add, should be used for Consumables only.
+            :return: New qty.
+            """
+            if qty:
+                self.qty += qty
+                self.weight += qty * self.what.weight
+                self.value += qty * self.what.value
+
+                if self.consumable:
+                    self.uses += qty * self.what.uses
+
+            elif item:
+                assert isinstance(item, type(self.what)), 'Item Mismatch'
+                assert item.name == self.what.name, 'Item Mismatch'
+
+                if self.magical:
+                    assert item.magic == self.what.magic, 'Item Mismatch'
+
+                self.qty += 1
+                self.weight += self.what.weight
+                self.value += self.what.value
+
+                if self.consumable:
+                    self.uses += item.uses - item.usage
+
+            else:
+                raise Exception('No qty or item supplied!')
+
+            return self.qty
+
+        def sub(self, qty):
+            """
+            Subtracts an item from the collection.
+
+            :param qty: The number of items to subtract.
+            :return: New qty.
+            """
+
+            assert qty <= self.qty, "Not enough in collection"
+
+            self.qty -= qty
+            self.weight -= qty * self.what.weight
+            self.value -= qty * self.what.value
+
+            return self.qty
+
+        def is_empty(self):
+            """
+            Returns if the collection is empty.
+
+            :return: Boolean
+            """
+
+            return self.qty == 0
+
+    return Collection
