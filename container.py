@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import random
 
-from item import Item
+from item import Item, MagicItem
 from collection import Collection
 
 
@@ -31,6 +31,7 @@ class Container(Item):
         """Returns if the container is full."""
         return self.current_weight >= self.capacity
 
+    @property
     def free(self):
         """Returns the free space in the container"""
         return self.capacity - self.current_weight
@@ -39,6 +40,19 @@ class Container(Item):
         self.current_weight += collection.weight
         self.value += collection.value
         self.weight += collection.weight
+
+    @staticmethod
+    def _check_search(item, magic, item_id, category):
+        if magic:
+            if not isinstance(item.item, MagicItem):
+                return False
+        if item_id is not None:
+            if item.id != item_id:
+                return False
+        if category is not None:
+            if item.item.category not in category:
+                return False
+        return True
 
     def add(self, *collections):
         """
@@ -89,10 +103,22 @@ class Container(Item):
 
         return qty
 
-    def search(self, magic=None, name=None, category=None):
-        for id in self.contents:
-            if isinstance(self.contents[id], Container):
-                pass
+    def search(self, magic=False, item_id=None, category=None):
+        """
+        Searches for a set of criteria and yields all matching collections.
+
+        :param magic: True/False if magic item.
+        :param item_id: String with item id to find.
+        :param category: List of categories to search for.
+        :return: Yields collections.
+        """
+        for key in self.contents:
+            if isinstance(self.contents[key], Container):
+                for i in self.contents[key].search(magic, item_id, category):
+                    yield i
+            else:
+                if self._check_search(self.contents[key], magic, item_id, category):
+                    yield self.contents[key]
 
     def __str__(self, offset='\t'):
         s = self.name + ':'
