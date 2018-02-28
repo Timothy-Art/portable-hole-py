@@ -54,6 +54,7 @@ class Collection:
         self.quantity += other
         self.weight += other * self.item.weight
         self.value += other * self.item.value
+
         return self
 
     def sub(self, n=1):
@@ -82,6 +83,7 @@ class Collection:
         self.quantity -= other
         self.weight -= other * self.item.weight
         self.value -= other * self.item.value
+
         return self
 
     def __isub__(self, other):
@@ -94,6 +96,7 @@ class Collection:
         self.quantity -= other
         self.weight -= other * self.item.weight
         self.value -= other * self.item.value
+
         return self
 
     def __str__(self):

@@ -13,7 +13,7 @@ arrows += 10
 quiver = container.Container(name="Quiver", capacity=4, weight=2, value=1)
 backpack = container.Container(name='Backpack', capacity=20, weight=5, value=2)
 backpack.add(quiver, sword, sword, arrows)
-quiver.add(arrows, arrows)
+quiver.add(arrows, sword)
 
 print(backpack)
 

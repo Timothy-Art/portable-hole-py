@@ -37,12 +37,39 @@ class Container(Item):
         return self.capacity - self.current_weight
 
     def _update(self, collection):
+        """
+        Updates the current_weight, value, and weight properties
+        as items are added to the container.
+
+        :param collection: Collection being added.
+        """
         self.current_weight += collection.weight
         self.value += collection.value
         self.weight += collection.weight
 
+    def _sub_update(self, collection_id, n):
+        """
+        Updates the current_weight, value, and weight properties
+        for items that are removed from the container.
+
+        :param collection_id: Collection ID to subtract from.
+        :param n: Amount to subtract.
+        """
+        self.current_weight -= self.contents[collection_id].item.weight * n
+        self.value -= self.contents[collection_id].item.value * n
+        self.weight -= self.contents[collection_id].item.weight * n
+
     @staticmethod
     def _check_search(item, magic, item_id, category):
+        """
+        Checks if an item matches the search conditions.
+
+        :param item: Collection to check.
+        :param magic: True/False if magic.
+        :param item_id: Item ID to match.
+        :param category: List of categories to check for.
+        :return: True/False
+        """
         if magic:
             if not isinstance(item.item, MagicItem):
                 return False
@@ -52,6 +79,7 @@ class Container(Item):
         if category is not None:
             if item.item.category not in category:
                 return False
+
         return True
 
     def add(self, *collections):
@@ -100,6 +128,7 @@ class Container(Item):
             except ValueError:
                 qty = self.contents[collection_id].quantity
                 self.contents[collection_id] -= qty
+        self._sub_update(collection_id, qty)
 
         return qty
 
@@ -131,3 +160,45 @@ class Container(Item):
                 s += '-- ' + str(self.contents[i])
 
         return s
+
+
+class MagicContainer(Container, MagicItem):
+    """
+    A Magic Container item that can hold other items. In addition to the standard item properties,
+    it also has a weight allowance that it can hold. The weight of a MagicContainer remains fixed.
+    """
+    def __init__(self, name, magic, capacity, weight=0, value=0, unique_id=None, dmg=None):
+        """
+        Creates a new Container.
+
+        :param name: Name of the item.
+        :param capacity: Maximum weight that can be held.
+        :param weight: Weight of the item.
+        :param value: Value in GP of the item.
+        :param unique_id: Unique identifier for the Container. Defaults to a random number.
+        """
+        Container.__init__(self, name, capacity)
+        MagicItem.__init__(self, name, magic, weight, value, category='container', dmg=dmg)
+
+        self.id = self._gen_id(unique_id or str(random.getrandbits(40)), self.category, self.name)
+
+    def _update(self, collection):
+        """
+        Updates the current_weight and value properties
+        as items are added to the container.
+
+        :param collection: Collection being added.
+        """
+        self.current_weight += collection.weight
+        self.value += collection.value
+
+    def _sub_update(self, collection_id, n):
+        """
+        Updates the current_weight, value, and weight properties
+        for items that are removed from the container.
+
+        :param collection_id: Collection ID to subtract from.
+        :param n: Amount to subtract.
+        """
+        self.current_weight -= self.contents[collection_id].item.weight * n
+        self.value -= self.contents[collection_id].item.value * n
