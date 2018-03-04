@@ -48,7 +48,7 @@ class MagicItem(Item):
         :param category: The kind of item to create.
         :param dmg: (Optional) Page reference of item.
         """
-        super().__init__(name, weight, value, category)
+        super(MagicItem, self).__init__(name, weight, value, category)
         self.magic = magic
         self.dmg = dmg
         self.id = self._gen_id(category, name, magic)

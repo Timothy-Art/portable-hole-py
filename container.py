@@ -20,7 +20,7 @@ class Container(Item):
         :param value: Value in GP of the item.
         :param unique_id: Unique identifier for the Container. Defaults to a random number.
         """
-        super().__init__(name, weight, value, category='container')
+        super(Container, self).__init__(name, weight, value, category='container')
         self.capacity = capacity
         self.current_weight = 0
         self.contents = {}
@@ -47,17 +47,16 @@ class Container(Item):
         self.value += collection.value
         self.weight += collection.weight
 
-    def _sub_update(self, collection_id, n):
+    def _sub_update(self, collection_id):
         """
         Updates the current_weight, value, and weight properties
         for items that are removed from the container.
 
         :param collection_id: Collection ID to subtract from.
-        :param n: Amount to subtract.
         """
-        self.current_weight -= self.contents[collection_id].item.weight * n
-        self.value -= self.contents[collection_id].item.value * n
-        self.weight -= self.contents[collection_id].item.weight * n
+        self.current_weight -= self.contents[collection_id].weight
+        self.value -= self.contents[collection_id].value
+        self.weight -= self.contents[collection_id].weight
 
     @staticmethod
     def _check_search(item, magic, item_id, category):
@@ -108,29 +107,18 @@ class Container(Item):
 
         return []
 
-    def sub(self, collection_id, n=None):
+    def sub(self, collection_id):
         """
-        Subtracts items from a collection in the container.
+        Subtracts a collection in the container.
 
-        :param collection_id: Collection ID to subtract from.
-        :param n: Amount to subtract.
-        :return: The quantity subtracted.
+        :param collection_id: Collection ID to remove.
+        :return: True/False if the collection was subtracted.
         """
-        qty = 0
         if collection_id in self.contents:
-            try:
-                if n is None:
-                    qty = self.contents[collection_id].quantity
-                    self.contents[collection_id] -= qty
-                else:
-                    qty = n
-                    self.contents[collection_id] -= n
-            except ValueError:
-                qty = self.contents[collection_id].quantity
-                self.contents[collection_id] -= qty
-        self._sub_update(collection_id, qty)
-
-        return qty
+            self._sub_update(collection_id)
+            del self.contents[collection_id]
+            return True
+        return False
 
     def search(self, magic=False, item_id=None, category=None):
         """
@@ -192,7 +180,7 @@ class MagicContainer(Container, MagicItem):
         self.current_weight += collection.weight
         self.value += collection.value
 
-    def _sub_update(self, collection_id, n):
+    def _sub_update(self, collection_id):
         """
         Updates the current_weight, value, and weight properties
         for items that are removed from the container.
@@ -200,5 +188,132 @@ class MagicContainer(Container, MagicItem):
         :param collection_id: Collection ID to subtract from.
         :param n: Amount to subtract.
         """
-        self.current_weight -= self.contents[collection_id].item.weight * n
-        self.value -= self.contents[collection_id].item.value * n
+        self.current_weight -= self.contents[collection_id].weight
+        self.value -= self.contents[collection_id].value
+
+
+class Player(Container):
+    """
+    A Container that represents a player (or NPCs) inventory.
+    """
+    def __init__(self, name, capacity):
+        """
+        Creates a new Player.
+
+        :param name: Name of the character.
+        :param capacity: Carrying capacity.
+        """
+        super(Player, self).__init__(name='character', capacity=capacity, weight=0, value=0, unique_id=name)
+
+    @property
+    def inventory(self):
+        return self.contents
+
+
+class Inventory(Container):
+    """
+    A Container representing an entire inventory.
+    """
+    def __init__(self):
+        super(Inventory, self).__init__(name='inventory', capacity=0)
+
+    def _update(self, collection):
+        """
+        Updates the current_weight, value, and weight properties
+        as items are added to the container.
+
+        :param collection: Collection being added.
+        """
+        self.current_weight += collection.weight
+        self.value += collection.value
+        self.weight += collection.weight
+
+    def _sub_update(self, collection_id):
+        """
+        Updates the current_weight, value, and weight properties
+        for items that are removed from the container.
+
+        :param collection_id: Collection ID to subtract from.
+        """
+        self.current_weight -= self.contents[collection_id].weight
+        self.value -= self.contents[collection_id].value
+        self.weight -= self.contents[collection_id].weight
+
+    @staticmethod
+    def _check_search(item, magic, item_id, category):
+        """
+        Checks if an item matches the search conditions.
+
+        :param item: Collection to check.
+        :param magic: True/False if magic.
+        :param item_id: Item ID to match.
+        :param category: List of categories to check for.
+        :return: True/False
+        """
+        if magic:
+            if not isinstance(item.item, MagicItem):
+                return False
+        if item_id is not None:
+            if item.id != item_id:
+                return False
+        if category is not None:
+            if item.item.category not in category:
+                return False
+
+        return True
+
+    def add(self, *collections):
+        """
+        Adds collections to the container.
+
+        :param collections: Collections to add.
+        :return: List of collections that couldn't be added.
+        """
+        for i, collection in enumerate(collections):
+            assert isinstance(collection, Collection) or isinstance(collection, Container), \
+                TypeError("collection at {i} is not a Collection".format(i=i))
+
+            if self.current_weight + collection.weight > self.capacity:
+                print('over limit')
+                return collections[i:]
+
+            if isinstance(collection, Collection):
+                if collection.id in self.contents:
+                    self.contents[collection.id] += collection.quantity
+                else:
+                    self.contents[collection.id] = collection.__copy__()
+            else:
+                self.contents[collection.id] = collection
+            self._update(collection)
+
+        return []
+
+    def sub(self, collection_id):
+        """
+        Subtracts a collection in the container.
+
+        :param collection_id: Collection ID to remove.
+        :return: True/False if the collection was subtracted.
+        """
+        if collection_id in self.contents:
+            self._sub_update(collection_id)
+            del self.contents[collection_id]
+            return True
+        return False
+
+    def search(self, magic=False, item_id=None, category=None):
+        """
+        Searches for a set of criteria and yields all matching collections.
+
+        :param magic: True/False if magic item.
+        :param item_id: String with item id to find.
+        :param category: List of categories to search for.
+        :return: Yields collections.
+        """
+        for key in self.contents:
+            if isinstance(self.contents[key], Container):
+                for i in self.contents[key].search(magic, item_id, category):
+                    yield i
+            else:
+                if self._check_search(self.contents[key], magic, item_id, category):
+                    yield self.contents[key]
