@@ -1,22 +1,30 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
+import item
+
+
 class Collection:
     """
     A collection of Items
     """
-    def __init__(self, item, quantity=1):
+    def __init__(self, itm: item.Item, quantity: int = 1):
         """
         Creates a new Collection of a given Item.
 
-        :param item: Item to collect.
+        :param itm: Item to collect.
         :param quantity: Quantity of Items to start with. Defaults to 1.
         """
-        self.item = item
+        self.item = itm
+        self.item.parent = self
         self.quantity = quantity
         self.weight = self.item.weight * quantity
         self.value = self.item.value * quantity
         self.id = self.item.id
+        self.m = self.item.m
+        self.category = self.item.category
+        self.name = self.item.name
+        self.parent = None
 
-    def add(self, n=1):
+    def add(self, n: int=1):
         """
         Adds to the Collection.
 
@@ -32,7 +40,7 @@ class Collection:
         self.weight += n * self.item.weight
         self.value += n * self.item.value
 
-    def __add__(self, other):
+    def __add__(self, other: int):
         try:
             other = int(other)
         except ValueError:
@@ -44,7 +52,7 @@ class Collection:
         self.value += other * self.item.value
         return self
 
-    def __iadd__(self, other):
+    def __iadd__(self, other: int):
         try:
             other = int(other)
         except ValueError:
@@ -54,10 +62,9 @@ class Collection:
         self.quantity += other
         self.weight += other * self.item.weight
         self.value += other * self.item.value
-
         return self
 
-    def sub(self, n=1):
+    def sub(self, n: int=1):
         """
         Subtracts from the Collection.
 
@@ -73,7 +80,7 @@ class Collection:
         self.weight -= n * self.item.weight
         self.value -= n * self.item.value
 
-    def __sub__(self, other):
+    def __sub__(self, other: int):
         try:
             other = int(other)
         except ValueError:
@@ -83,10 +90,9 @@ class Collection:
         self.quantity -= other
         self.weight -= other * self.item.weight
         self.value -= other * self.item.value
-
         return self
 
-    def __isub__(self, other):
+    def __isub__(self, other: int):
         try:
             other = int(other)
         except ValueError:
@@ -96,11 +102,10 @@ class Collection:
         self.quantity -= other
         self.weight -= other * self.item.weight
         self.value -= other * self.item.value
-
         return self
 
-    def __str__(self):
-        return str(self.item) + '  x' + str(self.quantity)
+    def __str__(self) -> str:
+        return f'{self.item}  x{self.quantity}'
 
     def __copy__(self):
         return Collection(self.item, quantity=self.quantity)

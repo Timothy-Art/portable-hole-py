@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 class Item:
     """
     An Item. Contains properties for the item's name, weight, value, and category.
     """
-    def __init__(self, name, weight=0, value=0, category='misc'):
+    def __init__(self, name: str, weight: float = 0.0, value: float = 0.0, category: str = 'misc'):
         """
         Creates a new Item.
 
@@ -17,9 +17,11 @@ class Item:
         self.value = float(value)
         self.category = category
         self.id = self._gen_id(category, name)
+        self.m = False
+        self.parent = None
 
     @staticmethod
-    def _gen_id(*args):
+    def _gen_id(*args: str) -> str:
         """
         Generates an id for the Item by appending the args together.
 
@@ -28,7 +30,7 @@ class Item:
         """
         return '|'.join(args)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -37,7 +39,8 @@ class MagicItem(Item):
     A Magical Item that extends the base item class. This has additional properties
     for the item's magic properties.
     """
-    def __init__(self, name, magic, weight=0, value=0, category='misc', dmg=None):
+    def __init__(self, name: str, magic: str, weight: float = 0.0, value: float = 0.0,
+                 category: str = 'misc', dmg: int = None):
         """
         Creates a new MagicItem.
 
@@ -52,7 +55,8 @@ class MagicItem(Item):
         self.magic = magic
         self.dmg = dmg
         self.id = self._gen_id(category, name, magic)
+        self.m = True
 
-    def __str__(self):
-        return self.name + ' ' + self.magic
+    def __str__(self) -> str:
+        return f'{self.name} {self.magic}'
 
