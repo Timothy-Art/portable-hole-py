@@ -47,10 +47,7 @@ class Collection:
             raise TypeError("unsupported operand type for +: {other}".format(other=type(other)))
 
         assert self.quantity + other >= 0, ValueError("quantity cannot be < 0")
-        self.quantity += other
-        self.weight += other * self.item.weight
-        self.value += other * self.item.value
-        return self
+        return Collection(itm=self.item, quantity=self.quantity+other)
 
     def __iadd__(self, other: int):
         try:
@@ -86,11 +83,9 @@ class Collection:
         except ValueError:
             raise TypeError("unsupported operand type for -: {other}".format(other=type(other)))
 
-        assert self.quantity + other >= 0, ValueError("quantity cannot be < 0")
-        self.quantity -= other
-        self.weight -= other * self.item.weight
-        self.value -= other * self.item.value
-        return self
+        assert self.quantity - other >= 0, ValueError("quantity cannot be < 0")
+
+        return Collection(itm=self.item, quantity=self.quantity-other)
 
     def __isub__(self, other: int):
         try:
@@ -98,10 +93,47 @@ class Collection:
         except ValueError:
             raise TypeError("unsupported operand type for -=: {other}".format(other=type(other)))
 
-        assert self.quantity + other >= 0, ValueError("quantity cannot be < 0")
+        assert self.quantity - other >= 0, ValueError("quantity cannot be < 0")
         self.quantity -= other
         self.weight -= other * self.item.weight
         self.value -= other * self.item.value
+        return self
+
+    def mult(self, n: int=1):
+        """
+        Multiplies the Collection.
+
+        :param n: Quantity to multiply by.
+        """
+        try:
+            n = int(n)
+        except ValueError:
+            raise TypeError("unsupported operand type for add: {other}".format(other=type(n)))
+
+        assert self.quantity * n >= 0, ValueError("quantity cannot be < 0")
+        self.quantity *= n
+        self.weight = self.quantity * self.item.weight
+        self.value = self.value * self.item.value
+
+    def __mul__(self, other: int):
+        try:
+            other = int(other)
+        except ValueError:
+            raise TypeError("unsupported operand type for *: {other}".format(other=type(other)))
+
+        assert self.quantity * other >= 0, ValueError("quantity cannot be < 0")
+        return Collection(itm=self.item, quantity=self.quantity*other)
+
+    def __imul__(self, other: int):
+        try:
+            other = int(other)
+        except ValueError:
+            raise TypeError("unsupported operand type for *: {other}".format(other=type(other)))
+
+        assert self.quantity * other >= 0, ValueError("quantity cannot be < 0")
+        self.quantity *= other
+        self.weight = self.quantity * self.item.weight
+        self.value = self.value * self.item.value
         return self
 
     def __str__(self) -> str:

@@ -81,12 +81,12 @@ class Container(item.Item):
                 return False
         return True
 
-    def add(self, *collections: collection.Collection) -> tuple:
+    def add(self, *collections) -> tuple:
         """
         Adds collections to the container.
 
-        :param collections: Collections to add.
-        :return: List of collections that couldn't be added.
+        :param collections: Collections or Container to add.
+        :return: Tuple of collections that couldn't be added.
         """
         for i, coll in enumerate(collections):
             assert isinstance(coll, collection.Collection) or isinstance(coll, Container), \
@@ -136,7 +136,7 @@ class Container(item.Item):
                     yield i
 
     def __str__(self, offset='\t') -> str:
-        s = f'{self.name} ({self.contents_weight}/{self.capacity}):'
+        s = f'{self.name} ({self.contents_weight:.2f}/{self.capacity:.2f}):'
 
         for i in self.contents:
             s += '\n'+offset+'|'
@@ -216,3 +216,71 @@ class Player(Container):
                 s += '-- ' + str(self.contents[i])
 
         return s
+
+
+class Store(Container):
+    """
+    A Container that represents storage (house, bank,...) with unlimited capacity.
+    """
+    def __init__(self, name: str):
+        """
+        Creates a new Store.
+
+        :param name: Name of the store.
+        """
+        super(Store, self).__init__(name=name, capacity=0.0, weight=0.0, value=0.0)
+
+    @property
+    def full(self) -> bool:
+        """Returns if the container is full."""
+        return False
+
+    @property
+    def free(self) -> float:
+        """Returns the free space in the container"""
+        return self.capacity - self.contents_weight
+
+    def update(self):
+        """
+        Updates the current_weight, value, and weight properties
+        as items are added to the container.
+        """
+        contents_weight = 0
+        contents_value = 0
+
+        for key in self.contents:
+            if isinstance(self.contents[key], Container):
+                self.contents[key].update()
+                contents_weight += self.contents[key].total_weight
+                contents_value += self.contents[key].total_value
+            else:
+                contents_weight += self.contents[key].weight
+                contents_value += self.contents[key].value
+
+        self.contents_weight = contents_weight
+        self.contents_value = contents_value
+        self.capacity = contents_weight
+
+    def add(self, *collections) -> tuple:
+        """
+        Adds collections to the container.
+
+        :param collections: Collections or Container to add.
+        :return: Tuple of collections that couldn't be added.
+        """
+        for i, coll in enumerate(collections):
+            assert isinstance(coll, collection.Collection) or isinstance(coll, Container), \
+                TypeError("collection at {i} is not a Collection or Container".format(i=i))
+
+            if isinstance(coll, collection.Collection):
+                if coll.id in self.contents:
+                    self.contents[coll.id] += coll.quantity
+                else:
+                    self.contents[coll.id] = coll.__copy__()
+                    self.contents[coll.id].parent = self
+            else:
+                self.contents[coll.id] = coll
+                self.contents[coll.id].parent = self
+            self.update()
+
+        return ()
