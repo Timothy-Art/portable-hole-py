@@ -3,6 +3,7 @@ import item
 import collection
 import container
 import inventory
+import pprint
 
 inv = inventory.Inventory()
 tim = container.Player(name="Tim", capacity=135)
@@ -72,3 +73,5 @@ for i in search:
 
 inv.update()
 print(inv)
+
+pprint.pprint(inv.to_dict())

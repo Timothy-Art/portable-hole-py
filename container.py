@@ -25,6 +25,7 @@ class Container(item.Item):
         self.contents_value = 0.0
         self.contents = {}
         self.id = self._gen_id(unique_id or str(random.getrandbits(40)), self.category, self.name)
+        self.parent = None
 
     @property
     def full(self) -> bool:
@@ -134,6 +135,20 @@ class Container(item.Item):
             if isinstance(self.contents[key], Container):
                 for i in self.contents[key].search(**kwargs):
                     yield i
+
+    def to_dict(self) -> dict:
+        """
+        Returns the container as a dictionary mapping.
+
+        :return: Dictionary.
+        """
+        self.update()
+        out = vars(self)
+        out['type'] = type(self).__name__
+        for key in out['contents']:
+            out['contents'][key] = self.contents[key].to_dict()
+
+        return out
 
     def __str__(self, offset='\t') -> str:
         s = f'{self.name} ({self.contents_weight:.2f}/{self.capacity:.2f}):'

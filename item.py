@@ -30,6 +30,22 @@ class Item:
         """
         return '|'.join(args)
 
+    def to_dict(self) -> dict:
+        """
+        Returns the item as a dictionary mapping.
+
+        :return: Dictionary.
+        """
+        out = {
+            'type': type(self).__name__,
+            'name': self.name,
+            'weight': self.weight,
+            'value': self.value,
+            'category': self.category
+        }
+
+        return out
+
     def __str__(self) -> str:
         return self.name
 
@@ -56,6 +72,24 @@ class MagicItem(Item):
         self.dmg = dmg
         self.id = self._gen_id(category, name, magic)
         self.m = True
+
+    def to_dict(self) -> dict:
+        """
+        Returns the item as a dictionary mapping.
+
+        :return: Dictionary.
+        """
+        out = {
+            'type': type(self).__name__,
+            'name': self.name,
+            'magic': self.magic,
+            'weight': self.weight,
+            'value': self.value,
+            'category': self.category,
+            'dmg': self.dmg
+        }
+
+        return out
 
     def __str__(self) -> str:
         return f'{self.name} {self.magic}'

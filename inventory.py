@@ -1,5 +1,7 @@
 #!/usr/bin/env python3.6
 import container
+import collection
+import item
 
 
 class Inventory(container.Container):
@@ -55,3 +57,12 @@ class Inventory(container.Container):
             self.update()
             return True
         return False
+
+    def from_dict(self, inv):
+        """
+        Generates an Inventory from a dictionary.
+
+        :param inv: Dictionary of inventory.
+        :return: Inventory
+        """
+

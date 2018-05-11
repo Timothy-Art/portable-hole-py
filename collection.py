@@ -136,6 +136,20 @@ class Collection:
         self.value = self.value * self.item.value
         return self
 
+    def to_dict(self) -> dict:
+        """
+        Returns the collection as a dictionary mapping.
+
+        :return: Dictionary.
+        """
+        out = {
+            'type': type(self).__name__,
+            'item': self.item.to_dict(),
+            'quantity': self.quantity
+        }
+
+        return out
+
     def __str__(self) -> str:
         return f'{self.item}  x{self.quantity}'
 
