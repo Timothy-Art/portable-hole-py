@@ -41,7 +41,7 @@ coins *= 2
 coins = coins - 5
 coins = coins + 5
 coins = coins * 2
-print(coins)
+# print(coins)
 
 arrows = collection.Collection(itm=item.Item(name='Arrow', weight=0.1, value=0.1, category='ammunition'), quantity=10)
 sword = collection.Collection(itm=item.MagicItem(name="Sword", magic="+1", weight=2, value=10, category='weapon'))
@@ -66,12 +66,13 @@ bag_o_holding.add(sword*4)
 bag_o_holding.add(gp*1000)
 bag_o_holding.add(gp*1000)
 
-search = backpack.search(m=True)
+search = inv.search(m=True)
 
 for i in search:
-    print(i)
+    print(i.name+i.magic)
 
 inv.update()
-print(inv)
+# print(inv)
 
-pprint.pprint(inv.to_dict())
+# pprint.pprint(inv.to_dict())
+print(inventory.from_dict(inv.to_dict()))

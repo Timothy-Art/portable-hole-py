@@ -58,11 +58,94 @@ class Inventory(container.Container):
             return True
         return False
 
-    def from_dict(self, inv):
+    def to_dict(self) -> dict:
         """
-        Generates an Inventory from a dictionary.
+        Returns the container as a dictionary mapping.
 
-        :param inv: Dictionary of inventory.
-        :return: Inventory
+        :return: Dictionary.
         """
+        self.update()
+        out = {
+            'type':     type(self).__name__,
+            'name':     self.name,
+            'contents': {key: val.to_dict() for key, val in self.contents.items()}
+        }
 
+        return out
+
+
+def from_dict(inventory):
+    """
+    Generates an Inventory from a dictionary.
+
+    :param inventory: Dictionary of inventory.
+    :return: Inventory
+    """
+    inv = Inventory()
+    if inventory['type'] == 'Inventory':
+        inventory = inventory['contents']
+
+    def _rec_dict(d):
+        if d['type'] == 'Item':
+            return item.Item(
+                name=d['name'],
+                weight=d['weight'],
+                value=d['value'],
+                category=d['category']
+            )
+        elif d['type'] == 'MagicItem':
+            return item.MagicItem(
+                name=d['name'],
+                magic=d['magic'],
+                weight=d['weight'],
+                value=d['value'],
+                category=d['category'],
+                dmg=d['dmg']
+            )
+        elif d['type'] == 'Collection':
+            return collection.Collection(
+                itm=_rec_dict(d['item']),
+                quantity=d['quantity']
+            )
+        elif d['type'] == 'Container':
+            out = container.Container(
+                name=d['name'],
+                capacity=d['capacity'],
+                weight=d['weight'],
+                value=d['value']
+            )
+            for j in d['contents'].values():
+                out.add(_rec_dict(j))
+            return out
+        elif d['type'] == 'MagicContainer':
+            out = container.MagicContainer(
+                name=d['name'],
+                magic=d['magic'],
+                capacity=d['capacity'],
+                weight=d['weight'],
+                value=d['value'],
+                dmg=d['dmg']
+            )
+            for j in d['contents'].values():
+                out.add(_rec_dict(j))
+            return out
+        elif d['type'] == 'Player':
+            out = container.Player(
+                name=d['name'],
+                capacity=d['capacity'],
+            )
+            for j in d['contents'].values():
+                out.add(_rec_dict(j))
+            return out
+        elif d['type'] == 'Store':
+            out = container.Store(
+                name=d['name']
+            )
+            for j in d['contents'].values():
+                out.add(_rec_dict(j))
+            return out
+
+    for i in inventory.values():
+        inv.add(_rec_dict(i))
+
+    return inv

@@ -143,10 +143,15 @@ class Container(item.Item):
         :return: Dictionary.
         """
         self.update()
-        out = vars(self)
-        out['type'] = type(self).__name__
-        for key in out['contents']:
-            out['contents'][key] = self.contents[key].to_dict()
+
+        out = {
+            'type':     type(self).__name__,
+            'name':     self.name,
+            'capacity': self.capacity,
+            'weight':   self.weight,
+            'value':    self.value,
+            'contents': {key: val.to_dict() for key, val in self.contents.items()}
+        }
 
         return out
 
@@ -189,6 +194,27 @@ class MagicContainer(Container, item.MagicItem):
         """Returns total weight of container and its contents."""
         return self.weight
 
+    def to_dict(self) -> dict:
+        """
+        Returns the container as a dictionary mapping.
+
+        :return: Dictionary.
+        """
+        self.update()
+
+        out = {
+            'type':     type(self).__name__,
+            'name':     self.name,
+            'magic':    self.magic,
+            'capacity': self.capacity,
+            'weight':   self.weight,
+            'value':    self.value,
+            'dmg':      self.dmg,
+            'contents': {key: val.to_dict() for key, val in self.contents.items()}
+        }
+
+        return out
+
     def __str__(self, offset='\t') -> str:
         s = f'{self.name} {self.magic} ({self.contents_weight}/{self.capacity}):'
 
@@ -219,6 +245,23 @@ class Player(Container):
     @property
     def inventory(self) -> dict:
         return self.contents
+
+    def to_dict(self) -> dict:
+        """
+        Returns the container as a dictionary mapping.
+
+        :return: Dictionary.
+        """
+        self.update()
+
+        out = {
+            'type':     type(self).__name__,
+            'name':     self.player_name,
+            'capacity': self.capacity,
+            'contents': {key: val.to_dict() for key, val in self.contents.items()}
+        }
+
+        return out
 
     def __str__(self, offset='\t') -> str:
         s = f'{self.player_name} ({self.contents_weight}/{self.capacity}):'
@@ -299,3 +342,19 @@ class Store(Container):
             self.update()
 
         return ()
+
+    def to_dict(self) -> dict:
+        """
+        Returns the container as a dictionary mapping.
+
+        :return: Dictionary.
+        """
+        self.update()
+
+        out = {
+            'type':     type(self).__name__,
+            'name':     self.name,
+            'contents': {key: val.to_dict() for key, val in self.contents.items()}
+        }
+
+        return out

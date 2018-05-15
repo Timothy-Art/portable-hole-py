@@ -1,12 +1,9 @@
 #!/usr/bin/env python3.6
-import item
-
-
 class Collection:
     """
     A collection of Items
     """
-    def __init__(self, itm: item.Item, quantity: int = 1):
+    def __init__(self, itm, quantity: int = 1):
         """
         Creates a new Collection of a given Item.
 
@@ -22,6 +19,7 @@ class Collection:
         self.m = self.item.m
         self.category = self.item.category
         self.name = self.item.name
+        self.magic = self.item.magic if self.m else None
         self.parent = None
 
     def add(self, n: int=1):
