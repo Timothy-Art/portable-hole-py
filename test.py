@@ -1,9 +1,6 @@
 #!/usr/bin/env python3.6
-import item
-import collection
-import container
-import inventory
-import pprint
+from portablehole import collection, container, inventory, item
+
 
 inv = inventory.Inventory()
 tim = container.Player(name="Tim", capacity=135)
@@ -69,7 +66,7 @@ bag_o_holding.add(gp*1000)
 search = inv.search(m=True)
 
 for i in search:
-    print(i.name+i.magic)
+    print(i.id)
 
 inv.update()
 # print(inv)

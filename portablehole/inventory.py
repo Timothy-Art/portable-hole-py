@@ -1,7 +1,5 @@
 #!/usr/bin/env python3.6
-import container
-import collection
-import item
+from portablehole import collection, container, item
 
 
 class Inventory(container.Container):

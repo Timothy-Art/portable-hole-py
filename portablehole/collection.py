@@ -30,7 +30,7 @@ class Collection:
         """
         try:
             n = int(n)
-        except ValueError:
+        except TypeError:
             raise TypeError("unsupported operand type for add: {other}".format(other=type(n)))
 
         assert self.quantity + n >= 0, ValueError("quantity cannot be < 0")
@@ -41,16 +41,16 @@ class Collection:
     def __add__(self, other: int):
         try:
             other = int(other)
-        except ValueError:
+        except TypeError:
             raise TypeError("unsupported operand type for +: {other}".format(other=type(other)))
 
         assert self.quantity + other >= 0, ValueError("quantity cannot be < 0")
-        return Collection(itm=self.item, quantity=self.quantity+other)
+        return Collection(itm=self.item, quantity=self.quantity + other)
 
     def __iadd__(self, other: int):
         try:
             other = int(other)
-        except ValueError:
+        except TypeError:
             raise TypeError("unsupported operand type for +: {other}".format(other=type(other)))
 
         assert self.quantity + other >= 0, ValueError("quantity cannot be < 0")
@@ -67,7 +67,7 @@ class Collection:
         """
         try:
             n = int(n)
-        except ValueError:
+        except TypeError:
             raise TypeError("unsupported operand type for sub: {other}".format(other=type(n)))
 
         assert self.quantity - n >= 0, ValueError("quantity cannot be < 0")
@@ -78,17 +78,17 @@ class Collection:
     def __sub__(self, other: int):
         try:
             other = int(other)
-        except ValueError:
+        except TypeError:
             raise TypeError("unsupported operand type for -: {other}".format(other=type(other)))
 
         assert self.quantity - other >= 0, ValueError("quantity cannot be < 0")
 
-        return Collection(itm=self.item, quantity=self.quantity-other)
+        return Collection(itm=self.item, quantity=self.quantity - other)
 
     def __isub__(self, other: int):
         try:
             other = int(other)
-        except ValueError:
+        except TypeError:
             raise TypeError("unsupported operand type for -=: {other}".format(other=type(other)))
 
         assert self.quantity - other >= 0, ValueError("quantity cannot be < 0")
@@ -105,33 +105,33 @@ class Collection:
         """
         try:
             n = int(n)
-        except ValueError:
+        except TypeError:
             raise TypeError("unsupported operand type for add: {other}".format(other=type(n)))
 
         assert self.quantity * n >= 0, ValueError("quantity cannot be < 0")
         self.quantity *= n
         self.weight = self.quantity * self.item.weight
-        self.value = self.value * self.item.value
+        self.value = self.quantity * self.item.value
 
     def __mul__(self, other: int):
         try:
             other = int(other)
-        except ValueError:
+        except TypeError:
             raise TypeError("unsupported operand type for *: {other}".format(other=type(other)))
 
         assert self.quantity * other >= 0, ValueError("quantity cannot be < 0")
-        return Collection(itm=self.item, quantity=self.quantity*other)
+        return Collection(itm=self.item, quantity=self.quantity * other)
 
     def __imul__(self, other: int):
         try:
             other = int(other)
-        except ValueError:
+        except TypeError:
             raise TypeError("unsupported operand type for *: {other}".format(other=type(other)))
 
         assert self.quantity * other >= 0, ValueError("quantity cannot be < 0")
         self.quantity *= other
         self.weight = self.quantity * self.item.weight
-        self.value = self.value * self.item.value
+        self.value = self.quantity * self.item.value
         return self
 
     def to_dict(self) -> dict:
@@ -153,3 +153,12 @@ class Collection:
 
     def __copy__(self):
         return Collection(self.item, quantity=self.quantity)
+
+    def __eq__(self, other):
+        if not isinstance(other, Collection):
+            return False
+        if not other.item == self.item:
+            return False
+        if not other.quantity == self.quantity:
+            return False
+        return True

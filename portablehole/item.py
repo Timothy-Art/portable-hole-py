@@ -49,6 +49,17 @@ class Item:
     def __str__(self) -> str:
         return self.name
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Item):
+            return False
+        if not other.id == self.id:
+            return False
+        if not other.weight == self.weight:
+            return False
+        if not other.value == self.value:
+            return False
+        return True
+
 
 class MagicItem(Item):
     """
@@ -93,4 +104,3 @@ class MagicItem(Item):
 
     def __str__(self) -> str:
         return f'{self.name} {self.magic}'
-
