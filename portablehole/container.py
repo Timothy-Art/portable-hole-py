@@ -81,6 +81,20 @@ class Container(item.Item):
                 return False
         return True
 
+    def check_add(self, weight: float) -> bool:
+        """
+        Recursively checks if weight can be added to a container and it parent
+        container(s).
+
+        :param weight: Weight to be added.
+        :return: True/False if the weight can be added.
+        """
+        if self.contents_weight + weight > self.capacity:
+            return False
+        if self.parent is not None:
+            return self.parent.check_add(weight)
+        return True
+
     def add(self, *collections) -> tuple:
         """
         Adds collections to the container.
@@ -89,10 +103,10 @@ class Container(item.Item):
         :return: Tuple of collections that couldn't be added.
         """
         for i, coll in enumerate(collections):
-            assert isinstance(coll, collection.Collection) or isinstance(coll, Container), \
-                TypeError("collection at {i} is not a Collection or Container".format(i=i))
+            if not (isinstance(coll, collection.Collection) or isinstance(coll, Container)):
+                raise TypeError("collection at {i} is not a Collection or Container".format(i=i))
 
-            if self.contents_weight + coll.weight > self.capacity:
+            if not self.check_add(coll.weight):
                 return collections[i:]
 
             if isinstance(coll, collection.Collection):
@@ -292,10 +306,15 @@ class Store(Container):
         """Returns if the container is full."""
         return False
 
-    @property
-    def free(self) -> float:
-        """Returns the free space in the container"""
-        return self.capacity - self.contents_weight
+    def check_add(self, weight: float) -> bool:
+        """
+        Recursively checks if weight can be added to a container and it parent
+        container(s).
+
+        :param weight: Weight to be added.
+        :return: True/False if the weight can be added.
+        """
+        return True
 
     def update(self):
         """
@@ -326,8 +345,8 @@ class Store(Container):
         :return: Tuple of collections that couldn't be added.
         """
         for i, coll in enumerate(collections):
-            assert isinstance(coll, collection.Collection) or isinstance(coll, Container), \
-                TypeError("collection at {i} is not a Collection or Container".format(i=i))
+            if not (isinstance(coll, collection.Collection) or isinstance(coll, Container)):
+                raise TypeError("collection at {i} is not a Collection or Container".format(i=i))
 
             if isinstance(coll, collection.Collection):
                 if coll.id in self.contents:

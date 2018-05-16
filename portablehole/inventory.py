@@ -2,7 +2,7 @@
 from portablehole import collection, container, item
 
 
-class Inventory(container.Container):
+class Inventory(container.Store):
     """
     A Container representing an entire inventory.
     """
@@ -10,7 +10,7 @@ class Inventory(container.Container):
         """
         Creates a new Inventory.
         """
-        super(Inventory, self).__init__(name='Inventory', capacity=0)
+        super(Inventory, self).__init__(name='Inventory')
 
     def update(self):
         """
@@ -38,7 +38,8 @@ class Inventory(container.Container):
         :param containers: Containers to add.
         """
         for i, con in enumerate(containers):
-            assert isinstance(con, container.Container), TypeError("collection at {i} is not a Container".format(i=i))
+            if not isinstance(con, container.Container):
+                raise TypeError("collection at {i} is not a Container".format(i=i))
 
             self.contents[con.id] = con
             self.update()
