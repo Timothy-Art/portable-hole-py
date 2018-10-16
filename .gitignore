@@ -2,5 +2,6 @@
 .idea
 __pycache__
 venv
-tests/.pytest_cache
+*.pytest_cache
+*.sqlite3
 

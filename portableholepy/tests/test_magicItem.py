@@ -1,4 +1,4 @@
-from portablehole import item
+from portableholepy import item
 
 
 class TestMagicItem:

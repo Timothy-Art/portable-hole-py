@@ -1,5 +1,4 @@
-#!/usr/bin/env python3.6
-from portablehole import collection, item
+from portableholepy import collection, item
 import random
 
 

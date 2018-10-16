@@ -1,7 +1,7 @@
 import sys
 
 from copy import copy
-from portablehole import item, collection
+from portableholepy import item, collection
 
 
 class TestCollection:

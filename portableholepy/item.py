@@ -1,4 +1,3 @@
-#!/usr/bin/env python3.6
 class Item:
     """
     An Item. Contains properties for the item's name, weight, value, and category.

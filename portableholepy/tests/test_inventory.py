@@ -1,7 +1,7 @@
 import random
 import sys
 
-from portablehole import item, collection, container, inventory
+from portableholepy import item, collection, container, inventory
 
 random.seed(0)
 

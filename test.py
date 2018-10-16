@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.6
-from portablehole import collection, container, inventory, item
+from portableholepy import collection, container, inventory, item
 
 
 inv = inventory.Inventory()
@@ -72,4 +72,4 @@ inv.update()
 # print(inv)
 
 # pprint.pprint(inv.to_dict())
-print(inventory.from_dict(inv.to_dict()))
+print(repr(inv.to_dict()))
