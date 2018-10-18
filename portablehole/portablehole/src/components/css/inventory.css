@@ -1,0 +1,28 @@
+.con {
+    height: fit-content;
+    /*border: 1px solid rgba(0, 0, 0, 0.33);*/
+    border-radius: 3px;
+    background-color: #fcfcfc;
+}
+
+.container-contents {
+    height: fit-content;
+    max-height: 250px;
+    overflow: auto;
+    margin: 0 0 0 10px;
+    transition: max-height 0.5s linear;
+}
+
+.con.collapsed > .container-contents {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.item {
+    border: solid rgba(0, 0, 0, 0.1);
+    border-width: 0 0 0 5px;
+}
+
+.item-stat {
+    white-space: nowrap;
+}

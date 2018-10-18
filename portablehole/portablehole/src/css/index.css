@@ -239,7 +239,7 @@ th {
   text-align: left; }
 
 html {
-  background-color: white;
+  background-color: #232323;
   font-size: 16px;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
@@ -6745,3 +6745,7 @@ label.panel-block {
 .footer {
   background-color: #fafafa;
   padding: 3rem 1.5rem 6rem; }
+
+html {
+  overflow-x: auto;
+  overflow-y: auto; }
