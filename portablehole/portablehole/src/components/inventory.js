@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get_weight } from "../inventory-mgmt";
 import store from "../store";
@@ -11,23 +12,47 @@ const map_state_to_inventory = state => ({
    data: state.data
 });
 
-const Item = ({ item }) => {
-    console.log(`${item.id} Rendering`);
-    return(
-        <div className={'item columns is-mobile no-gap is-marginless is-paddingless'}>
-            <div className={'item-stat column is-narrow'}>
-                {item.name}
+const ItemButton = ({ icon, fn }) => (
+    <a className={'item-btn'} onClick={fn}>
+        <FontAwesomeIcon icon={icon} fixedWidth={false}/>
+    </a>
+);
+
+const ItemControls = ({ move_fn, sell_fn, dele_fn }) => (
+    <div className={'item-controls column is-narrow has-text-right'}>
+        <ItemButton icon={fas.faArrowsAlt} fn={move_fn} />
+        <ItemButton icon={fas.faDollarSign} fn={sell_fn} />
+        <ItemButton icon={fas.faTimes} fn={dele_fn} />
+    </div>
+);
+
+class Item extends Component {
+    render(){
+        return(
+            <div className={'item columns is-mobile no-gap is-marginless is-paddingless'}>
+                <div className={'item-stat column is-narrow'}>
+                    {this.props.name}
+                </div>
+                <div className={'item-stat column has-text-left'}>
+                    {this.props.quantity > 1 ? 'x' + this.props.quantity.toFixed(0) : ''}
+                </div>
+                <ItemControls
+                    move_fn={ () => this.props.move_fn(this.props.id) }
+                    sell_fn={ () => this.props.sell_fn(this.props.id) }
+                    dele_fn={ () => this.props.dele_fn(this.props.id) }
+                />
             </div>
-            <div className={'item-stat column is-narrow'}>
-                {item.quantity > 1 ? 'x' + item.quantity.toFixed(0) : ''}
-            </div>
-            <div className={'item-controls column has-text-right'}>
-                <a className={'btn'}><FontAwesomeIcon icon={fas.faArrowsAlt} fixedWidth={true}/></a>
-                <a className={'btn'}><FontAwesomeIcon icon={fas.faUsdCircle} fixedWidth={true}/></a>
-                <a className={'btn'}><FontAwesomeIcon icon={fas.faTimes} fixedWidth={true}/></a>
-            </div>
-        </div>
-    )
+        )
+    }
+}
+
+Item.propTypes = {
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    quantity: PropTypes.number.isRequired,
+    move_fn: PropTypes.func,
+    sell_fn: PropTypes.func,
+    dele_fn: PropTypes.func
 };
 
 class Container extends Component {
@@ -68,28 +93,24 @@ class Container extends Component {
                     <div className={'item-stat column is-narrow'}>
                         {container.name}
                     </div>
-                    <div className={'item-stat column is-narrow'}>
-                        {container.quantity > 1 ? 'x' + container.quantity.toFixed(0) : ''}
+                    <div className={'item-controls column is-narrow'}>
+                        <ItemButton icon={this.state.collapsed ? fas.faAngleUp : fas.faAngleDown} fn={this.collapse} />
                     </div>
-                    <div className={'item-stat column has-text-right'}>
+                    <div className={'item-stat warning column has-text-right'}>
                         {this.state.contents_weight} | {container.capacity}
                     </div>
-                    <div className={'item-controls column is-narrow has-text-right'}>
-                        <a className={'btn'} onClick={this.collapse} >
-                            <FontAwesomeIcon icon={this.state.collapsed ? fas.faPlus : fas.faMinus} fixedWidth={true}/>
-                        </a>
-                        <a className={'btn'}><FontAwesomeIcon icon={fas.faArrowsAlt} fixedWidth={true}/></a>
-                        <a className={'btn'}><FontAwesomeIcon icon={fas.faUsdCircle} fixedWidth={true}/></a>
-                        <a className={'btn'}><FontAwesomeIcon icon={fas.faTimes} fixedWidth={true}/></a>
-                    </div>
+                    <ItemControls/>
                 </div>
                 <div className={'container-contents'}>
                     {
                         Object.keys(container.contents).map( key => {
-                            if (container.contents[key].type === 'Container' || container.contents[key].type === 'MagicContainer'){
-                                return(<Container container={container.contents[key]} key={key} />)
+                            let item = container.contents[key];
+                            if (item.type === 'Container' || item.type === 'MagicContainer'){
+                                return(<Container container={item} key={key} />)
                             } else {
-                                return(<Item item={container.contents[key]} key={key} />)
+                                return(
+                                    <Item id={item.id} name={item.name} quantity={item.quantity} key={key} />
+                                )
                             }
                         } )
                     }
@@ -98,6 +119,21 @@ class Container extends Component {
         )
     }
 }
+
+Container.propTypes = {
+    container: PropTypes.objectOf(
+        PropTypes.shape({
+            id: PropTypes.string,
+            name: PropTypes.string,
+            type: PropTypes.string,
+            capacity: PropTypes.number,
+            quantity: PropTypes.number,
+            value: PropTypes.number,
+            weight: PropTypes.number,
+            contents: PropTypes.object
+        })
+    )
+};
 
 class ConnectedInventory extends Component {
     constructor(props){

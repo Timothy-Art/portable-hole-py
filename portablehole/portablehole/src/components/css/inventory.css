@@ -1,4 +1,5 @@
 .con {
+    padding: 5px;
     height: fit-content;
     /*border: 1px solid rgba(0, 0, 0, 0.33);*/
     border-radius: 3px;
@@ -25,4 +26,26 @@
 
 .item-stat {
     white-space: nowrap;
+}
+
+.item-stat.warning {
+    color: #ff0561;
+}
+
+.item-btn {
+    width: 1.7em;
+    height: 1.7em;
+    display: inline-flex;
+    margin: 0 1px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    color: #4a4a4a;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-btn:hover {
+    color: #242424;
+    background: #fcfcfc;
 }
