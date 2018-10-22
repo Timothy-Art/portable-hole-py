@@ -1,9 +1,23 @@
+.grid-container > .con {
+    box-shadow: black 0 0 15px 0;
+}
+
 .con {
-    padding: 5px;
+    margin: 4px 4px 4px 0 !important;
+    padding: 5px 0 5px 5px;
     height: fit-content;
     /*border: 1px solid rgba(0, 0, 0, 0.33);*/
     border-radius: 3px;
     background-color: #fcfcfc;
+}
+.con.magic {
+    background-color: #ffffdd;
+}
+
+.container-contents > .con {
+    border: solid rgba(0, 0, 0, 0.1);
+    border-width: 0 0 0 5px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0 1px 2px 1px;
 }
 
 .container-contents {
@@ -20,16 +34,29 @@
 }
 
 .item {
+    padding: 0 0 0 5px;
+    margin: 4px 4px 4px 0 !important;
+    background-color: #fcfcfc;
+    border-radius: 3px;
     border: solid rgba(0, 0, 0, 0.1);
     border-width: 0 0 0 5px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0 1px 2px 1px;
+}
+.item.magic {
+    background-color: #ffffdd;
 }
 
 .item-stat {
     white-space: nowrap;
+    padding: 0.75rem 2px !important;
 }
 
 .item-stat.warning {
     color: #ff0561;
+}
+
+.item-controls {
+    padding: 0.75rem 5px !important;
 }
 
 .item-btn {
