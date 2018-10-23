@@ -9,7 +9,7 @@ export const get_weight = inventory => {
 
     //console.log(inventory);
     //console.log(inventory.contents);
-    if (inventory.contents !== undefined && inventory.contents.length > 0){
+    if (inventory.contents !== undefined){
         if (inventory.type !== 'MagicContainer'){
             weight += Object.keys(inventory.contents).reduce( (current_weight, key) => {
                 current_weight += get_weight(inventory.contents[key]);

@@ -92,10 +92,10 @@ class Container extends Component {
     }
 
     get_contents(){
-        return(Object.keys(this.props.container.contents).reduce( (current_weight, key) => {
+        return Object.keys(this.props.container.contents).reduce( (current_weight, key) => {
             current_weight += get_weight(this.props.container.contents[key]);
             return current_weight;
-        }, 0))
+        }, 0);
     }
 
     get_weight(){

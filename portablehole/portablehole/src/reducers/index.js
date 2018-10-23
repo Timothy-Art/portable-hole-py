@@ -69,6 +69,9 @@ const initialState = {
     counter: 0,
 };
 
+/*
+Deletes an item and cascades down contents if available.
+ */
 const delete_cascade = (state, id) => {
     let item = id;
 
@@ -89,7 +92,6 @@ const delete_cascade = (state, id) => {
 };
 
 const rootReducer = (state=initialState, action) => {
-    console.log(action);
     switch(action.type){
         case ADD_ITEM:
             let new_state = Object.assign({}, state);
@@ -101,8 +103,6 @@ const rootReducer = (state=initialState, action) => {
             let del_state = Object.assign({}, state.data);
 
             delete_cascade(del_state, action.payload.msg);
-            console.log(state);
-            console.log(del_state);
 
             return Object.assign({}, {data: del_state});
 
