@@ -1,4 +1,5 @@
-import {ADD_ITEM, DELETE_ITEM} from "../constants";
+import { ADD_ITEM, DELETE_ITEM } from "../constants";
+import {is_container, get_container, is_top_level} from "../inventory-mgmt";
 
 const initialState = {
     user: {name: 'timbit'},
@@ -12,31 +13,33 @@ const initialState = {
             value: 0,
             quantity: 1,
             magic: false,
-            contents:{
-                backpack: {
-                    name: 'Backpack',
-                    id: 'shino.contents.backpack',
-                    type: 'Container',
-                    capacity: 25,
-                    weight: 5,
-                    value: 5,
-                    quantity: 1,
-                    magic: false,
-                    contents: {
-                        sword : {name: 'Sword', id: 'shino.contents.backpack.contents.sword', type: 'Item', weight: 7, value: 12, quantity: 2, magic: false},
-                        shield : {name: 'Shield', id: 'shino.contents.backpack.contents.shield', type: 'Item', weight: 7, value: 12, quantity: 1, magic: false}
-                    }
-                },
-                rodofsmiting: {
-                    name: 'Rod of Smiting',
-                    id: 'shino.contents.rodofsmiting',
-                    type: 'Item',
-                    weight: 5,
-                    value: 2000,
-                    quantity: 1,
-                    magic: true
-                }
-            }
+            contents: ['_shino_backpack', '_shino_rodofsmiting']
+        },
+        _shino_backpack: {
+            name: 'Backpack',
+            id: '_shino_backpack',
+            type: 'Container',
+            capacity: 25,
+            weight: 5,
+            value: 5,
+            quantity: 1,
+            magic: false,
+            contents: ['_shino_backpack_sword', '_shino_backpack_shield']
+        },
+        _shino_backpack_sword: {
+            name: 'Sword', id: '_shino_backpack_sword', type: 'Item', weight: 7, value: 12, quantity: 2, magic: false
+        },
+        _shino_backpack_shield: {
+            name: 'Shield', id: '_shino_backpack_shield', type: 'Item', weight: 7, value: 12, quantity: 1, magic: false
+        },
+        _shino_rodofsmiting: {
+            name: 'Rod of Smiting',
+            id: '_shino_rodofsmiting',
+            type: 'Item',
+            weight: 5,
+            value: 2000,
+            quantity: 1,
+            magic: true
         },
         donny: {
             name: 'Donny',
@@ -47,44 +50,61 @@ const initialState = {
             value: 0,
             quantity: 1,
             magic: false,
-            contents: {
-                bagofholding: {
-                    name: 'Bag of Holding',
-                    id: 'donny.contents.bagofholding',
-                    type: 'MagicContainer',
-                    capacity: 250,
-                    weight: 5,
-                    value: 1000,
-                    quantity: 1,
-                    magic: true,
-                    contents: {
-                        lockpick: {name: 'Lockpick', id: 'donny.contents.bagofholding.contents.lockpick', type: 'Item', weight: 1, value: 50, quantity: 1, magic: false},
-                        gp: {name: 'GP', id: 'donny.contents.bagofholding.contents.gp', type: 'Item', weight: 0.01, value: 1, quantity: 1000, magic: false}
-                    }
-                }
-            }
-        }
+            contents: ['_donny_bagofholding']
+        },
+        _donny_bagofholding: {
+            name: 'Bag of Holding',
+            id: '_donny_bagofholding',
+            type: 'MagicContainer',
+            capacity: 250,
+            weight: 5,
+            value: 1000,
+            quantity: 1,
+            magic: true,
+            contents: ['_donny_bagofholding_lockpick', '_donny_bagofholding_gp']
+        },
+        _donny_bagofholding_lockpick: {name: 'Lockpick', id: '_donny_bagofholding_lockpick', type: 'Item', weight: 1, value: 50, quantity: 1, magic: false},
+        _donny_bagofholding_gp: {name: 'GP', id: '_donny_bagofholding_gp', type: 'Item', weight: 0.01, value: 1, quantity: 1000, magic: false}
     },
     counter: 0,
 };
 
+const delete_cascade = (state, id) => {
+    let item = id;
+
+    if (!is_top_level(item)){
+        let parent = get_container(item);
+        state[parent].contents.splice(state[parent].contents.indexOf(item), 1);
+    }
+
+    if (is_container(state[item])){
+        for (let i = state[item].contents.length-1; i >= 0; i--){
+            delete_cascade(state, state[item].contents[i]);
+        }
+    }
+
+    delete state[item];
+
+    return state
+};
+
 const rootReducer = (state=initialState, action) => {
-    let new_state;
+    console.log(action);
     switch(action.type){
         case ADD_ITEM:
-            new_state = Object.assign({}, state);
-            eval(`new_state.data.${action.payload.id} = action.payload.msg`);
+            let new_state = Object.assign({}, state);
             console.log(new_state);
 
             return new_state;
 
         case DELETE_ITEM:
-            new_state = Object.assign({}, state);
-            eval(`delete new_state.data.${action.payload.msg}`);
-            new_state.counter += 1;
-            console.log(new_state);
+            let del_state = Object.assign({}, state.data);
 
-            return new_state;
+            delete_cascade(del_state, action.payload.msg);
+            console.log(state);
+            console.log(del_state);
+
+            return Object.assign({}, {data: del_state});
 
         default:
             return state;

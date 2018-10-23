@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { get_weight } from "../inventory-mgmt";
+import {get_weight, nest_inventory} from "../inventory-mgmt";
 import { delete_item } from '../actions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as fas from '@fortawesome/pro-solid-svg-icons';
@@ -92,10 +92,10 @@ class Container extends Component {
     }
 
     get_contents(){
-        return Object.keys(this.props.container.contents).reduce( (current_weight, key) => {
+        return(Object.keys(this.props.container.contents).reduce( (current_weight, key) => {
             current_weight += get_weight(this.props.container.contents[key]);
             return current_weight;
-        }, 0);
+        }, 0))
     }
 
     get_weight(){
@@ -139,7 +139,8 @@ class Container extends Component {
                                         quantity={item.quantity}
                                         magic={item.magic}
                                         dele_fn={this.props.dele_fn}
-                                        key={key} />
+                                        key={key}
+                                    />
                                 )
                             }
                         } )
@@ -159,16 +160,15 @@ class ConnectedInventory extends Component {
     }
 
     render(){
+        let data = nest_inventory(this.props.data);
+
         return(
             <Grid>
-                { Object.keys(this.props.data).map( key => {
-                            return(
-                                <Container
-                                    container={this.props.data[key]}
-                                    dele_fn={this.props.delete_item}
-                                    key={key}
-                                />
-                            )}) }
+                {
+                    Object.keys(data).map( key => (
+                        <Container container={data[key]} dele_fn={this.props.delete_item} key={key} />
+                    ))
+                }
             </Grid>
         )
     }
