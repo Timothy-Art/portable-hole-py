@@ -52,7 +52,7 @@
 }
 
 .item-stat.warning {
-    color: #ff0561;
+    color: hsl(348, 100%, 61%);
 }
 
 .item-controls {
@@ -72,7 +72,20 @@
     justify-content: center;
 }
 
+.item-btn.danger {
+    background: hsl(348, 100%, 61%);
+    border-color: transparent;
+    color: #fcfcfc;
+}
+
 .item-btn:hover {
     color: #242424;
     background: #fcfcfc;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.item-btn.danger:hover{
+    background: #ff2b56;
+    border-color: transparent;
+    color: white;
 }

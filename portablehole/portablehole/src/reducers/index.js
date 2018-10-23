@@ -66,7 +66,10 @@ const initialState = {
         _donny_bagofholding_lockpick: {name: 'Lockpick', id: '_donny_bagofholding_lockpick', type: 'Item', weight: 1, value: 50, quantity: 1, magic: false},
         _donny_bagofholding_gp: {name: 'GP', id: '_donny_bagofholding_gp', type: 'Item', weight: 0.01, value: 1, quantity: 1000, magic: false}
     },
-    counter: 0,
+    items: [
+        {name: 'Sword', type: 'Item', weight: 7, value: 12, magic: false},
+        {name: 'Shield', type: 'Item', weight: 7, value: 12, magic: false}
+    ]
 };
 
 /*
@@ -94,15 +97,15 @@ const delete_cascade = (state, id) => {
 const rootReducer = (state=initialState, action) => {
     switch(action.type){
         case ADD_ITEM:
-            let new_state = Object.assign({}, state);
-            console.log(new_state);
+            let add_state = Object.assign({}, state);
 
-            return new_state;
+            return add_state;
 
         case DELETE_ITEM:
             let del_state = Object.assign({}, state.data);
 
             delete_cascade(del_state, action.payload.msg);
+            // send delete through socket -> else cache?
 
             return Object.assign({}, {data: del_state});
 

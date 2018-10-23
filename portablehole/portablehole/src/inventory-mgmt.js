@@ -94,3 +94,16 @@ export const nest_inventory = inventory => {
     // console.log(new_inventory);
     return new_inventory;
 };
+
+
+export const create_id = ( name, container ) => {
+    let id = name;
+
+    if (is_top_level(container)){
+        id = '_' + container + id;
+    } else {
+        id = container + id;
+    }
+
+    return id;
+};

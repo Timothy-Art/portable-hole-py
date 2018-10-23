@@ -1,0 +1,52 @@
+.control-strip {
+    width: 100%;
+    height: 60px;
+    position: fixed;
+    top: 0;
+    box-shadow: rgba(0, 0, 0, 0.33) 0 0 5px 3px;
+}
+
+.control-spacing {
+    height: 70px;
+}
+
+.add-dialog {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.1s linear;
+}
+
+.add-dialog.true{
+    visibility: visible;
+    opacity: 1;
+}
+
+.add-dialog > .dialog {
+    position: relative;
+    max-height: 250px;
+    top: 50px;
+    margin: auto;
+    transform: scale(1.33, 1.33);
+    transition: transform 0.1s ease-out;
+}
+
+.add-dialog.true > .dialog {
+    transform: scale(1, 1);
+}
+
+.add-cross {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+}
+
+.form-break {
+    height: 1px;
+    max-width: 450px;
+    margin: 1.5rem auto;
+}

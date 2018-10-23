@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {get_weight, nest_inventory} from "../inventory-mgmt";
+import { get_weight, nest_inventory } from "../inventory-mgmt";
 import { delete_item } from '../actions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as fas from '@fortawesome/pro-solid-svg-icons';
@@ -18,8 +18,8 @@ const map_dispatch_to_inventory = dispatch => ({
     delete_item: id => dispatch(delete_item(id))
 });
 
-const ItemButton = ({ icon, fn }) => (
-    <a className={'item-btn'} onClick={fn}>
+const ItemButton = ({ icon, fn, danger='' }) => (
+    <a className={'item-btn ' + danger} onClick={fn}>
         <FontAwesomeIcon icon={icon} fixedWidth={false}/>
     </a>
 );
@@ -28,7 +28,7 @@ const ItemControls = ({ move_fn, sell_fn, dele_fn }) => (
     <div className={'item-controls column is-narrow has-text-right'}>
         <ItemButton icon={fas.faArrowsAlt} fn={move_fn} />
         <ItemButton icon={fas.faDollarSign} fn={sell_fn} />
-        <ItemButton icon={fas.faTimes} fn={dele_fn} />
+        <ItemButton icon={fas.faTimes} fn={dele_fn} danger={'danger'} />
     </div>
 );
 
@@ -109,6 +109,8 @@ class Container extends Component {
     render(){
         let container = this.props.container;
         let magic = container.magic ? 'magic' : '';
+        let contents = this.get_contents();
+        let warning = contents >= container.capacity ? 'warning' : '';
         console.log(`${container.id} Rendering`);
 
         return(
@@ -120,8 +122,8 @@ class Container extends Component {
                     <div className={'item-controls column is-narrow'}>
                         <ItemButton icon={this.state.collapsed ? fas.faAngleUp : fas.faAngleDown} fn={this.collapse} />
                     </div>
-                    <div className={'item-stat warning column has-text-right'}>
-                        {this.get_contents()} | {container.capacity}
+                    <div className={'item-stat column has-text-right ' + warning}>
+                        {contents} | {container.capacity}
                     </div>
                     <ItemControls dele_fn={() => this.props.dele_fn(container.id)}/>
                 </div>
