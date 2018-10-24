@@ -1,7 +1,8 @@
 import { ADD_ITEM, DELETE_ITEM } from "../constants";
 import {is_container, get_container, is_top_level} from "../inventory-mgmt";
+import { fromJS } from 'immutable';
 
-const initialState = {
+const initialState = fromJS({
     user: {name: 'timbit'},
     data: {
         shino: {
@@ -67,10 +68,10 @@ const initialState = {
         _donny_bagofholding_gp: {name: 'GP', id: '_donny_bagofholding_gp', type: 'Item', weight: 0.01, value: 1, quantity: 1000, magic: false}
     },
     items: [
-        {name: 'Sword', type: 'Item', weight: 7, value: 12, magic: false},
-        {name: 'Shield', type: 'Item', weight: 7, value: 12, magic: false}
+        {name: 'Shield', type: 'Item', weight: 7, value: 12, magic: false},
+        {name: 'Sword', type: 'Item', weight: 7, value: 12, magic: false}
     ]
-};
+});
 
 /*
 Deletes an item and cascades down contents if available.
@@ -97,17 +98,25 @@ const delete_cascade = (state, id) => {
 const rootReducer = (state=initialState, action) => {
     switch(action.type){
         case ADD_ITEM:
-            let add_state = Object.assign({}, state);
+            let add_state = state.get('data').toJSON();
 
-            return add_state;
+            if (action.payload.id in add_state){
+                add_state[action.payload.id].quantity += action.payload.msg.quantity;
+            } else {
+                add_state[action.payload.id] = action.payload.msg;
+            }
+
+            return state.set('data', fromJS(add_state));
 
         case DELETE_ITEM:
-            let del_state = Object.assign({}, state.data);
+            let del_state = state.get('data').toJS();
 
             delete_cascade(del_state, action.payload.msg);
             // send delete through socket -> else cache?
 
-            return Object.assign({}, {data: del_state});
+            console.log(state.get('data').toJS(), del_state);
+
+            return state.set('data', fromJS(del_state));
 
         default:
             return state;

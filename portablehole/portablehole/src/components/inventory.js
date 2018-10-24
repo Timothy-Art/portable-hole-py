@@ -9,8 +9,7 @@ import Grid from "./grid";
 import './css/inventory.css';
 
 const map_state_to_inventory = state => ({
-    data: state.data,
-    counter: state.counter
+    data: state.get('data').toJS()
 });
 
 

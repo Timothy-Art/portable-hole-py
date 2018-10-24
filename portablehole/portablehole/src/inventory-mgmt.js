@@ -95,6 +95,15 @@ export const nest_inventory = inventory => {
     return new_inventory;
 };
 
+export const pretty_id = id => {
+    if (is_top_level(id)){
+        return id;
+    }
+
+    let pretty = id.split('_').slice(1);
+    pretty = pretty.join(' > ');
+    return pretty;
+};
 
 export const create_id = ( name, container ) => {
     let id = name;
