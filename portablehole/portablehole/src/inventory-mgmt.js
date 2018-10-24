@@ -1,3 +1,5 @@
+import { CONTAINERS } from "./constants/types";
+
 /* get_weight
 Gets the weight of an inventory item.
 
@@ -57,7 +59,7 @@ Determines if an item is a container.
 param item: Item Object.
 return bool.
  */
-export const is_container = item => ('contents' in item);
+export const is_container = item => (CONTAINERS.has(item.type));
 
 const nest_container = ( container, inventory ) => {
     let new_container = Object.assign({}, container);
