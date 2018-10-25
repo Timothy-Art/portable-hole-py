@@ -107,6 +107,7 @@ export const pretty_id = id => {
     return pretty;
 };
 
+<<<<<<< HEAD
 /*
 Creates the id for an item being added. If container is left blank,
 will return the id lowercased and cleaned.
@@ -127,6 +128,15 @@ export const create_id = ( container, name ) => {
         } else {
             id = container + '_' + id;
         }
+=======
+export const create_id = ( container, name ) => {
+    let id = name.toLowerCase();
+
+    if (is_top_level(container)){
+        id = '_' + container + '_' + id;
+    } else {
+        id = container + '_' + id;
+>>>>>>> 3dbbbfb589e8b0dd84e47146954d62ddd4855241
     }
 
     return id;
