@@ -11,7 +11,7 @@ export const get_weight = inventory => {
 
     //console.log(inventory);
     //console.log(inventory.contents);
-    if (inventory.contents !== undefined){
+    if (is_container(inventory)){
         if (inventory.type !== 'MagicContainer'){
             weight += Object.keys(inventory.contents).reduce( (current_weight, key) => {
                 current_weight += get_weight(inventory.contents[key]);
@@ -107,13 +107,26 @@ export const pretty_id = id => {
     return pretty;
 };
 
-export const create_id = ( name, container ) => {
-    let id = name;
+/*
+Creates the id for an item being added. If container is left blank,
+will return the id lowercased and cleaned.
 
-    if (is_top_level(container)){
-        id = '_' + container + id;
-    } else {
-        id = container + id;
+param container: String with container id.
+param name: String with name of item.
+return: String with new item id.
+ */
+export const create_id = ( container, name ) => {
+    let id = name.toLowerCase();
+    let re = /(\W|_)+/g;
+    id = id.replace(re, '');
+    console.log(id);
+
+    if (container !== ''){
+        if (is_top_level(container)){
+            id = '_' + container + '_' + id;
+        } else {
+            id = container + '_' + id;
+        }
     }
 
     return id;
