@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { add_item } from "../actions";
@@ -20,12 +20,11 @@ const map_dispatch_to_controls = dispatch => ({
 
 const NameInputs = ({ items, selected, set_selection, name, set_name }) => {
     return (
-        <div className={'columns is-centered'}>
-            <div className={'column'}>
-                <label className={'has-text-light'}>Item:</label>
-                <div className={'field has-addons has-addons-centered'}>
-                <div className={'control'}>
-                    <div className={'select'}>
+        <div className={'span-full'}>
+            <label className={'has-text-light'}>Item:</label>
+            <div className={'field has-addons has-addons-centered'}>
+                <div className={'control is-expanded'}>
+                    <div className={'select is-fullwidth'}>
                         <select value={selected} onChange={set_selection}>
                             {items.map((item, key) => <option key={key} value={key}>{item.name}</option>)}
                         </select>
@@ -37,7 +36,6 @@ const NameInputs = ({ items, selected, set_selection, name, set_name }) => {
                 <div className={'control'}>
                     <input type={'text'} className={'input'} value={name} onChange={set_name} placeholder={'Add new item'}/>
                 </div>
-                </div>
             </div>
         </div>
     )
@@ -45,29 +43,27 @@ const NameInputs = ({ items, selected, set_selection, name, set_name }) => {
 
 const QuantityInput = ({ quantity, set_quantity, inc_quantity }) => {
     return (
-        <div className={'columns is-centered'}>
-            <div className={'column'}>
-                <label className={'has-text-light'}> Quantity: </label>
-                <div className={'field has-addons has-addons-centered'}>
-                    <div className={'control'}>
-                        <button className={'button is-danger'} onClick={() => inc_quantity(-1)} >
-                            <FontAwesomeIcon icon={fas.faMinus} />
-                        </button>
-                    </div>
-                    <div className={'control'}>
-                        <input
-                            className={'input has-text-centered'}
-                            type={'number'}
-                            value={quantity}
-                            min={1}
-                            onChange={set_quantity}
-                        />
-                    </div>
-                    <div className={'control'}>
-                        <button className={'button is-danger'} onClick={() => inc_quantity(+1)}>
-                            <FontAwesomeIcon icon={fas.faPlus} />
-                        </button>
-                    </div>
+        <div>
+            <label className={'has-text-light'}> Quantity: </label>
+            <div className={'field has-addons has-addons-centered'}>
+                <div className={'control'}>
+                    <button className={'button is-danger'} onClick={() => inc_quantity(-1)} >
+                        <FontAwesomeIcon icon={fas.faMinus} />
+                    </button>
+                </div>
+                <div className={'control'}>
+                    <input
+                        className={'input has-text-centered'}
+                        type={'number'}
+                        value={quantity}
+                        min={1}
+                        onChange={set_quantity}
+                    />
+                </div>
+                <div className={'control'}>
+                    <button className={'button is-danger'} onClick={() => inc_quantity(+1)}>
+                        <FontAwesomeIcon icon={fas.faPlus} />
+                    </button>
                 </div>
             </div>
         </div>
@@ -76,17 +72,13 @@ const QuantityInput = ({ quantity, set_quantity, inc_quantity }) => {
 
 const LocationInput = ({ containers, location, set_location }) => {
     return(
-        <div className={'columns is-centered'}>
-            <div className={'column'}>
-                <label className={'has-text-light'}>Store in:</label>
-                <div className={'field is-grouped is-grouped-centered'}>
-                    <div className={'control'}>
-                        <div className={'select'}>
-                            <select value={location} onChange={set_location}>
-                                {containers.map((item, key) => <option key={key} value={key}>{pretty_id(item)}</option>)}
-                            </select>
-                        </div>
-                    </div>
+        <div>
+            <label className={'has-text-light'}>Store in:</label>
+            <div className={'control is-expanded'}>
+                <div className={'select is-fullwidth'}>
+                    <select value={location} onChange={set_location}>
+                        {containers.map((item, key) => <option key={key} value={key}>{pretty_id(item)}</option>)}
+                    </select>
                 </div>
             </div>
         </div>
@@ -95,60 +87,50 @@ const LocationInput = ({ containers, location, set_location }) => {
 
 const DetailInputs = (props) => {
     return(
-        <div className={'columns is-centered is-multiline'}>
-            <div className={'column is-full'}>
-                <label className={'has-text-light'}> Details: </label>
+        <div className={'grid-dialog span-full'}>
+            <div className={'span-full'}>
+                <label className={'has-text-light'}>Details:</label>
             </div>
-            <div className={'column is-full'}>
-                <div className={'field is-grouped is-grouped-centered is-grouped-multiline'}>
-                    <div className={'has-text-centered'}>
-                        <label className={'has-text-light'}> Type: </label>
-                        <div>
-                            <div className={'select'}>
-                                <select value={props.type} onChange={props.set_type}>
-                                    <option value={'Item'}>Item</option>
-                                    <option value={'MagicItem'}>Magic Item</option>
-                                    <option value={'Container'}>Container</option>
-                                    <option value={'MagicContainer'}>Magic Container</option>
-                                    <option value={'Player'}>Player</option>
-                                    <option value={'Location'}>Location</option>
-                                </select>
-                            </div>
+            <div className={'span-full'}>
+                <label className={'has-text-light'}>Type:</label>
+                <div className={props.container ? 'field has-addons' : 'field'}>
+                    <div className={'control is-expanded'}>
+                        <div className={'select is-fullwidth'}>
+                            <select value={props.type} onChange={props.set_type}>
+                                <option value={'Item'}>Item</option>
+                                <option value={'MagicItem'}>Magic Item</option>
+                                <option value={'Container'}>Container</option>
+                                <option value={'MagicContainer'}>Magic Container</option>
+                                <option value={'Player'}>Player</option>
+                                <option value={'Location'}>Location</option>
+                            </select>
                         </div>
                     </div>
                     {props.container ? (
-                        <div className={'has-text-centered'}>
-                            <label className={'has-text-light'}> Capacity: </label>
-                            <div>
-                                <input className={'input'} type={'number'} value={props.capacity}
-                                       onChange={props.set_capacity}/>
-                            </div>
+                        <div className={'control'}>
+                            <input className={'input'} type={'number'} value={props.capacity} placeholder={'Capacity'}
+                                   onChange={props.set_capacity}/>
                         </div>
                     ) : null}
                 </div>
             </div>
-            <div className={'column is-full'}>
-                <div className={'field is-grouped is-grouped-centered is-grouped-multiline'}>
-                    <div className={'has-text-centered'}>
-                        <label className={'has-text-light'}> Value: </label>
-                        <div>
-                            <input className={'input'} type={'number'} value={props.value} onChange={props.set_value}/>
-                        </div>
-                    </div>
-                    <div className={'has-text-centered'}>
-                        <label className={'has-text-light'}> Weight: </label>
-                        <div>
-                            <input className={'input'} type={'number'} value={props.weight} onChange={props.set_weight}/>
-                        </div>
-                    </div>
+            <div className={'has-text-centered'}>
+                <label className={'has-text-light'}>Value:</label>
+                <div>
+                    <input className={'input'} type={'number'} value={props.value} onChange={props.set_value}/>
+                </div>
+            </div>
+            <div className={'has-text-centered'}>
+                <label className={'has-text-light'}>Weight:</label>
+                <div>
+                    <input className={'input'} type={'number'} value={props.weight} onChange={props.set_weight}/>
                 </div>
             </div>
         </div>
     )
 };
 
-
-class AddForm extends Component{
+class AddForm extends PureComponent{
     static propTypes = {
         active: PropTypes.bool.isRequired,
         close: PropTypes.func.isRequired,
@@ -170,7 +152,7 @@ class AddForm extends Component{
             value: 0,
             magic: false,
             container: false,
-            capacity: 0
+            capacity: ''
         }
     }
 
@@ -265,55 +247,46 @@ class AddForm extends Component{
 
         return(
             <div className={'add-dialog ' + this.props.active}>
-                <div className={'container dialog'} onClick={(event) => event.stopPropagation()}>
-                    <div className={'columns is-centered is-mobile'}>
-                        <div className={'column is-one-fifth'}>
-                            <a className={'add-cross button is-black is-inverted is-outlined'} onClick={this.reset}>
-                                <FontAwesomeIcon icon={fas.faTimes} style={{width: '24px', height: '24px'}}/>
-                            </a>
-                        </div>
-                    </div>
+                <div className={'dialog'} onClick={(event) => event.stopPropagation()}>
+                    <div className={'grid-dialog'}>
 
-                    <hr className={'form-break'} />
-                    <NameInputs
-                        items={items}
-                        selected={this.state.selected}
-                        set_selection={this.set_selection}
-                        name={this.state.name}
-                        set_name={this.set_name}
-                    />
-                    <QuantityInput
-                        quantity={this.state.quantity}
-                        set_quantity={this.set_quantity}
-                        inc_quantity={this.inc_quantity}
-                    />
-                    <LocationInput
-                        containers={this.props.containers}
-                        location={this.state.location}
-                        set_location={this.set_location}
-                    />
-                    { this.state.details ? <DetailInputs
-                        type={this.state.type}
-                        set_type={this.set_type}
-                        container={this.state.container}
-                        capacity={this.state.capacity}
-                        set_capacity={this.set_capacity}
-                        weight={this.state.weight}
-                        set_weight={this.set_weight}
-                        value={this.state.value}
-                        set_value={this.set_value}
-                        quantity={this.state.quantity}
-                        set_quantity={this.set_quantity}
-                    /> : null}
-                    <hr className={'form-break'} />
+                        <a className={'add-cross span-full button is-dark is-inverted is-outlined'} onClick={this.reset}>
+                            <FontAwesomeIcon icon={fas.faTimes} style={{width: '24px', height: '24px'}}/>
+                        </a>
 
-                    <div className={'columns is-centered is-mobile'}>
-                        <div className={'column is-one-fifth'}>
-                            <a className={'button is-fullwidth'} onClick={this.props.submit}>Add</a>
-                        </div>
-                        <div className={'column is-one-fifth'}>
-                            <a className={'button is-fullwidth is-danger'} onClick={this.reset}>Cancel</a>
-                        </div>
+                        <NameInputs
+                            items={items}
+                            selected={this.state.selected}
+                            set_selection={this.set_selection}
+                            name={this.state.name}
+                            set_name={this.set_name}
+                        />
+                        <QuantityInput
+                            quantity={this.state.quantity}
+                            set_quantity={this.set_quantity}
+                            inc_quantity={this.inc_quantity}
+                        />
+                        <LocationInput
+                            containers={this.props.containers}
+                            location={this.state.location}
+                            set_location={this.set_location}
+                        />
+                        { this.state.details ? <DetailInputs
+                            type={this.state.type}
+                            set_type={this.set_type}
+                            container={this.state.container}
+                            capacity={this.state.capacity}
+                            set_capacity={this.set_capacity}
+                            weight={this.state.weight}
+                            set_weight={this.set_weight}
+                            value={this.state.value}
+                            set_value={this.set_value}
+                            quantity={this.state.quantity}
+                            set_quantity={this.set_quantity}
+                        /> : null}
+                        <div className={'span-full'}/>
+                        <a className={'button is-fullwidth'} onClick={this.props.submit}>Add</a>
+                        <a className={'button is-fullwidth is-danger'} onClick={this.reset}>Cancel</a>
                     </div>
                 </div>
             </div>
@@ -321,7 +294,12 @@ class AddForm extends Component{
     }
 }
 
-class AddButton extends Component{
+class AddButton extends PureComponent{
+    static propTypes = {
+        containers: PropTypes.array.isRequired,
+        items: PropTypes.array.isRequired
+    };
+
     constructor(props){
         super(props);
 
@@ -361,8 +339,12 @@ class AddButton extends Component{
     }
 }
 
+class ConnectedControlStrip extends PureComponent{
+    static propTypes = {
+        containers: PropTypes.array.isRequired,
+        items: PropTypes.array.isRequired
+    };
 
-class ConnectedControlStrip extends Component{
     constructor(props){
         super(props);
         console.log(props.containers);

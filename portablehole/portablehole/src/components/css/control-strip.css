@@ -16,7 +16,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: #232323f6;
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.1s linear;
@@ -41,12 +41,32 @@
 }
 
 .add-cross {
+    justify-self: center;
     width: 2.5rem !important;
     height: 2.5rem !important;
 }
 
-.form-break {
-    height: 1px;
+.dialog > .grid-dialog{
+    width: 95%;
+}
+
+.grid-dialog {
+    margin: auto;
+    width: 100%;
     max-width: 450px;
-    margin: 1.5rem auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 1em;
+}
+
+.span-full {
+    grid-column: span 2;
+}
+
+@media (min-width: 769px) {
+    .grid-dialog {
+        grid-template-columns: repeat(2, minmax(200px, 1fr));
+    }
+
+
 }

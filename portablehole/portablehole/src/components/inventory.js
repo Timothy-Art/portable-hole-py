@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get_weight, nest_inventory } from "../inventory-mgmt";
@@ -31,7 +31,7 @@ const ItemControls = ({ move_fn, sell_fn, dele_fn }) => (
     </div>
 );
 
-class Item extends Component {
+class Item extends PureComponent {
     static propTypes = {
         id: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
