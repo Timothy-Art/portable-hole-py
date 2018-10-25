@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { add_item } from "../actions";
-import { is_container, pretty_id } from "../inventory-mgmt";
+import {create_id, is_container, pretty_id} from "../inventory-mgmt";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { fromJS } from 'immutable';
 import { CONTAINERS, MAGIC } from "../constants/types";
@@ -176,7 +176,22 @@ class AddForm extends PureComponent{
     }
 
     submit(){
+        let item = {
+            name: this.state.name,
+            id: create_id(this.props.containers[this.state.location], this.state.name),
+            type: this.state.type,
+            capacity: this.state.capacity === '' ? 0 : this.state.capacity,
+            weight: this.state.weight === '' ? 0 : this.state.weight,
+            value: this.state.value === '' ? 0 : this.state.value,
+            quantity: this.state.quantity === '' ? 0 : this.state.quantity,
+            magic: this.state.magic,
+            contents: this.state.container ? [] : null
+        };
+        console.log('submit', item);
 
+        this.props.submit(item.id, item);
+        this.reset();
+        this.props.close();
     }
 
     reset(){
@@ -285,7 +300,7 @@ class AddForm extends PureComponent{
                             set_quantity={this.set_quantity}
                         /> : null}
                         <div className={'span-full'}/>
-                        <a className={'button is-fullwidth'} onClick={this.props.submit}>Add</a>
+                        <a className={'button is-fullwidth'} onClick={this.submit}>Add</a>
                         <a className={'button is-fullwidth is-danger'} onClick={this.reset}>Cancel</a>
                     </div>
                 </div>
@@ -297,7 +312,8 @@ class AddForm extends PureComponent{
 class AddButton extends PureComponent{
     static propTypes = {
         containers: PropTypes.array.isRequired,
-        items: PropTypes.array.isRequired
+        items: PropTypes.array.isRequired,
+        submit: PropTypes.func
     };
 
     constructor(props){
@@ -329,7 +345,7 @@ class AddButton extends PureComponent{
                 </div>
                 <AddForm
                     active={this.state.active}
-                    submit={()=>(null)}
+                    submit={this.props.submit}
                     close={this.close_dialog}
                     containers={this.props.containers}
                     items={this.props.items}
@@ -342,7 +358,8 @@ class AddButton extends PureComponent{
 class ConnectedControlStrip extends PureComponent{
     static propTypes = {
         containers: PropTypes.array.isRequired,
-        items: PropTypes.array.isRequired
+        items: PropTypes.array.isRequired,
+        add_item: PropTypes.func.isRequired
     };
 
     constructor(props){
@@ -355,7 +372,11 @@ class ConnectedControlStrip extends PureComponent{
             <div>
                 <nav className={'level has-background-white control-strip'}>
                     <div className={'level-item has-text-centered'}>
-                        <AddButton containers={this.props.containers} items={this.props.items} />
+                        <AddButton
+                            containers={this.props.containers}
+                            items={this.props.items}
+                            submit={this.props.add_item}
+                        />
                     </div>
                 </nav>
                 <div className={'control-spacing'} />

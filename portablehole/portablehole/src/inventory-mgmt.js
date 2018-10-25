@@ -11,7 +11,7 @@ export const get_weight = inventory => {
 
     //console.log(inventory);
     //console.log(inventory.contents);
-    if (inventory.contents !== undefined){
+    if (is_container(inventory)){
         if (inventory.type !== 'MagicContainer'){
             weight += Object.keys(inventory.contents).reduce( (current_weight, key) => {
                 current_weight += get_weight(inventory.contents[key]);
@@ -107,13 +107,13 @@ export const pretty_id = id => {
     return pretty;
 };
 
-export const create_id = ( name, container ) => {
-    let id = name;
+export const create_id = ( container, name ) => {
+    let id = name.toLowerCase();
 
     if (is_top_level(container)){
-        id = '_' + container + id;
+        id = '_' + container + '_' + id;
     } else {
-        id = container + id;
+        id = container + '_' + id;
     }
 
     return id;
