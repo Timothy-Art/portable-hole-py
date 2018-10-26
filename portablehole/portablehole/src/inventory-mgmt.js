@@ -1,4 +1,4 @@
-import { CONTAINERS } from "./constants/types";
+import {CONTAINERS, STANDALONE} from "./constants/types";
 
 /* get_weight
 Gets the weight of an inventory item.
@@ -61,6 +61,22 @@ return bool.
  */
 export const is_container = item => (CONTAINERS.has(item.type));
 
+/* is_container
+Determines if an item is magic.
+
+param item: Item Object.
+return bool.
+ */
+export const is_magic = item => (MAGIC.has(item.type));
+
+/* is_container
+Determines if an item is standalone.
+
+param item: Item Object.
+return bool.
+ */
+export const is_standalone = item => (STANDALONE.has(item.type));
+
 const nest_container = ( container, inventory ) => {
     let new_container = Object.assign({}, container);
     new_container.contents = {};
@@ -107,7 +123,6 @@ export const pretty_id = id => {
     return pretty;
 };
 
-<<<<<<< HEAD
 /*
 Creates the id for an item being added. If container is left blank,
 will return the id lowercased and cleaned.
@@ -128,16 +143,11 @@ export const create_id = ( container, name ) => {
         } else {
             id = container + '_' + id;
         }
-=======
-export const create_id = ( container, name ) => {
-    let id = name.toLowerCase();
-
-    if (is_top_level(container)){
-        id = '_' + container + '_' + id;
-    } else {
-        id = container + '_' + id;
->>>>>>> 3dbbbfb589e8b0dd84e47146954d62ddd4855241
     }
 
     return id;
+};
+
+export const get_id = name => {
+    return name;
 };

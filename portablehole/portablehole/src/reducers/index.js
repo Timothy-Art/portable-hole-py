@@ -98,15 +98,17 @@ const delete_cascade = (state, id) => {
 const rootReducer = (state=initialState, action) => {
     switch(action.type){
         case ADD_ITEM:
-            console.log(action.payload.msg);
             let add_state = state.get('data').toJS();
 
             if (action.payload.id in add_state){
                 add_state[action.payload.id].quantity += action.payload.msg.quantity;
             } else {
                 add_state[action.payload.id] = action.payload.msg;
-                let parent = get_container(action.payload.id);
-                add_state[parent].contents.push(action.payload.id);
+
+                if (!is_top_level(action.payload.id)){
+                    let parent = get_container(action.payload.id);
+                    add_state[parent].contents.push(action.payload.id);
+                }
             }
 
             console.log(add_state);

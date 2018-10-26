@@ -2,16 +2,16 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { add_item } from "../actions";
-import {create_id, is_container, pretty_id} from "../inventory-mgmt";
+import { create_id, is_container, pretty_id, get_id } from "../inventory-mgmt";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { fromJS } from 'immutable';
-import { CONTAINERS, MAGIC } from "../constants/types";
+import {CONTAINERS, MAGIC, STANDALONE} from "../constants/types";
 import * as fas from '@fortawesome/pro-solid-svg-icons';
 import './css/control-strip.css';
 
 const map_state_to_controls = state => ({
     items: state.get('items').toJS(),
-    containers: [... state.get('data').filter( val => (is_container(val.toJS())) ).keys()]
+    containers: ['-', ... state.get('data').filter( val => (is_container(val.toJS())) ).keys()]
 });
 
 const map_dispatch_to_controls = dispatch => ({
@@ -85,7 +85,7 @@ const LocationInput = ({ containers, location, set_location }) => {
     );
 };
 
-const DetailInputs = (props) => {
+const DetailInputs = props => {
     return(
         <div className={'grid-dialog span-full'}>
             <div className={'span-full'}>
@@ -114,20 +114,24 @@ const DetailInputs = (props) => {
                     ) : null}
                 </div>
             </div>
-            <div className={'has-text-centered'}>
-                <label className={'has-text-light'}>Value:</label>
-                <div>
-                    <input className={'input'} type={'number'} value={props.value} onChange={props.set_value}/>
+            {!props.standalone ? (
+                <div className={'has-text-centered'}>
+                    <label className={'has-text-light'}>Value:</label>
+                    <div>
+                        <input className={'input'} type={'number'} value={props.value} onChange={props.set_value}/>
+                    </div>
                 </div>
-            </div>
-            <div className={'has-text-centered'}>
-                <label className={'has-text-light'}>Weight:</label>
-                <div>
-                    <input className={'input'} type={'number'} value={props.weight} onChange={props.set_weight}/>
+            ) : null}
+            {!props.standalone ? (
+                <div className={'has-text-centered'}>
+                    <label className={'has-text-light'}>Weight:</label>
+                    <div>
+                        <input className={'input'} type={'number'} value={props.weight} onChange={props.set_weight}/>
+                    </div>
                 </div>
-            </div>
+            ) : null}
         </div>
-    )
+    );
 };
 
 class AddForm extends PureComponent{
@@ -139,20 +143,24 @@ class AddForm extends PureComponent{
         items: PropTypes.array.isRequired
     };
 
-
     static default_state(){
         return {
             name: '',
             selected: 0,
             quantity: 1,
-            location: 0,
-            details: false,
-            type: '',
+            location: 1,
+            type: 'Item',
             weight: 0,
             value: 0,
+            capacity: '',
+            details: false,
             magic: false,
             container: false,
-            capacity: ''
+            standalone: false,
+            quantity_valid: true,
+            weight_valid: true,
+            value_valid: true,
+            capacity_valid: true
         }
     }
 
@@ -176,22 +184,24 @@ class AddForm extends PureComponent{
     }
 
     submit(){
+        let location = this.state.location === 0 ? '' : this.props.containers[this.state.location];
+        let id = this.state.details ? get_id(this.state.name) : this.state.name;
+
         let item = {
             name: this.state.name,
-            id: create_id(this.props.containers[this.state.location], this.state.name),
+            id: create_id(location, id),
             type: this.state.type,
-            capacity: this.state.capacity === '' ? 0 : this.state.capacity,
-            weight: this.state.weight === '' ? 0 : this.state.weight,
-            value: this.state.value === '' ? 0 : this.state.value,
-            quantity: this.state.quantity === '' ? 0 : this.state.quantity,
+            capacity: this.state.capacity === '' ? 0 : parseInt(this.state.capacity),
+            weight: this.state.weight === '' ? 0 : parseInt(this.state.weight),
+            value: this.state.value === '' ? 0.0 : parseFloat(this.state.value),
+            quantity: this.state.quantity === '' ? 0.0 : parseFloat(this.state.quantity),
             magic: this.state.magic,
-            contents: this.state.container ? [] : null
+            contents: this.state.container ? [] : undefined
         };
         console.log('submit', item);
 
         this.props.submit(item.id, item);
         this.reset();
-        this.props.close();
     }
 
     reset(){
@@ -200,7 +210,11 @@ class AddForm extends PureComponent{
     }
 
     set_name(event){
-        this.setState({selected: 0, name: event.target.value, details: true});
+        let details = true;
+        if (event.target.value === ''){
+            details = false;
+        }
+        this.setState({selected: 0, name: event.target.value, details: details});
     }
 
     set_selection(event){
@@ -216,32 +230,83 @@ class AddForm extends PureComponent{
     }
 
     set_location(event){
-        this.setState({location: event.target.value});
+        let location = parseInt(event.target.value);
+        console.log(location);
+        if (this.state.standalone){
+            location = 0;
+        } else if (location === 0){
+            location = this.state.location;
+        }
+
+        this.setState({location: location});
     }
 
     set_type(event){
         let container = false;
         let magic = false;
+        let standalone = false;
+        let location = this.state.location;
+
         if (CONTAINERS.has(event.target.value)){
             container = true;
         }
         if (MAGIC.has(event.target.value)){
             magic = true;
         }
+        if (STANDALONE.has(event.target.value)){
+            standalone = true;
+            location = 0;
+        }
 
-        this.setState({type: event.target.value, container: container, magic: magic});
+        this.setState({
+            location: location,
+            type: event.target.value,
+            container: container,
+            magic: magic,
+            standalone: standalone
+        });
     }
 
     set_capacity(event){
-        this.setState({capacity: event.target.value});
+        let cap_valid = true;
+
+        try {
+            if (parseInt(event.target.value) < 0){
+                cap_valid = false;
+            }
+        } catch (e) {
+            cap_valid = false;
+        }
+
+        this.setState({capacity: event.target.value, capacity_valid: cap_valid});
     }
 
     set_weight(event){
-        this.setState({weight: event.target.value});
+        let weight_valid = true;
+
+        try {
+            if (parseFloat(event.target.value) < 0){
+                weight_valid = false;
+            }
+        } catch (e) {
+            weight_valid = false;
+        }
+
+        this.setState({weight: event.target.value, weight_valid: weight_valid});
     }
 
     set_value(event){
-        this.setState({value: event.target.value});
+        let value_valid = true;
+
+        try {
+            if (parseFloat(event.target.value) < 0){
+                value_valid = false;
+            }
+        } catch (e) {
+            value_valid = false;
+        }
+
+        this.setState({value: event.target.value, value_valid: value_valid});
     }
 
     set_quantity(event){
@@ -289,6 +354,7 @@ class AddForm extends PureComponent{
                         { this.state.details ? <DetailInputs
                             type={this.state.type}
                             set_type={this.set_type}
+                            standalone={this.state.standalone}
                             container={this.state.container}
                             capacity={this.state.capacity}
                             set_capacity={this.set_capacity}
