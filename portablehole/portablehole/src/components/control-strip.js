@@ -5,7 +5,7 @@ import { add_item } from "../actions";
 import { create_id, is_container, pretty_id, get_id } from "../inventory-mgmt";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { fromJS } from 'immutable';
-import {CONTAINERS, MAGIC, STANDALONE} from "../constants/types";
+import { CONTAINERS, MAGIC, STANDALONE } from "../constants/types";
 import * as fas from '@fortawesome/pro-solid-svg-icons';
 import './css/control-strip.css';
 
@@ -18,13 +18,13 @@ const map_dispatch_to_controls = dispatch => ({
     add_item: ( id, item ) => dispatch(add_item(id, item))
 });
 
-const NameInputs = ({ items, selected, set_selection, name, set_name }) => {
+const NameInputs = ({ items, selected, set_selection, name, set_name, valid }) => {
     return (
         <div className={'span-full'}>
             <label className={'has-text-light'}>Item:</label>
             <div className={'field has-addons has-addons-centered'}>
                 <div className={'control is-expanded'}>
-                    <div className={'select is-fullwidth'}>
+                    <div className={valid ? 'select is-fullwidth' : 'select is-fullwidth is-danger'}>
                         <select value={selected} onChange={set_selection}>
                             {items.map((item, key) => <option key={key} value={key}>{item.name}</option>)}
                         </select>
@@ -34,14 +34,15 @@ const NameInputs = ({ items, selected, set_selection, name, set_name }) => {
                     <span className={'button is-static'}>or</span>
                 </div>
                 <div className={'control'}>
-                    <input type={'text'} className={'input'} value={name} onChange={set_name} placeholder={'Add new item'}/>
+                    <input type={'text'} className={valid ? 'input' : 'input is-danger has-text-danger'} value={name} onChange={set_name} placeholder={'Add new item'}/>
                 </div>
             </div>
+            {valid ? null : <p className="help is-danger">Item not set!</p>}
         </div>
     )
 };
 
-const QuantityInput = ({ quantity, set_quantity, inc_quantity }) => {
+const QuantityInput = ({ quantity, set_quantity, inc_quantity, valid }) => {
     return (
         <div>
             <label className={'has-text-light'}> Quantity: </label>
@@ -53,12 +54,13 @@ const QuantityInput = ({ quantity, set_quantity, inc_quantity }) => {
                 </div>
                 <div className={'control'}>
                     <input
-                        className={'input has-text-centered'}
+                        className={valid ? 'input has-text-centered' : 'input has-text-centered is-danger has-text-danger'}
                         type={'number'}
                         value={quantity}
                         min={1}
                         onChange={set_quantity}
                     />
+                    {valid ? null : <p className="help is-danger">Invalid quantity!</p>}
                 </div>
                 <div className={'control'}>
                     <button className={'button is-danger'} onClick={() => inc_quantity(+1)}>
@@ -108,8 +110,14 @@ const DetailInputs = props => {
                     </div>
                     {props.container ? (
                         <div className={'control'}>
-                            <input className={'input'} type={'number'} value={props.capacity} placeholder={'Capacity'}
-                                   onChange={props.set_capacity}/>
+                            <input
+                                className={props.capacity_valid ? 'input' : 'input is-danger has-text-danger'}
+                                type={'number'}
+                                value={props.capacity}
+                                placeholder={'Capacity'}
+                                onChange={props.set_capacity}
+                            />
+                            {props.capacity_valid ? null : <p className="help is-danger">Invalid capacity!</p>}
                         </div>
                     ) : null}
                 </div>
@@ -118,7 +126,13 @@ const DetailInputs = props => {
                 <div className={'has-text-centered'}>
                     <label className={'has-text-light'}>Value:</label>
                     <div>
-                        <input className={'input'} type={'number'} value={props.value} onChange={props.set_value}/>
+                        <input
+                            className={props.value_valid ? 'input' : 'input is-danger has-text-danger'}
+                            type={'number'}
+                            value={props.value}
+                            onChange={props.set_value}
+                        />
+                        {props.value_valid ? null : <p className="help is-danger">Invalid value!</p>}
                     </div>
                 </div>
             ) : null}
@@ -126,7 +140,13 @@ const DetailInputs = props => {
                 <div className={'has-text-centered'}>
                     <label className={'has-text-light'}>Weight:</label>
                     <div>
-                        <input className={'input'} type={'number'} value={props.weight} onChange={props.set_weight}/>
+                        <input
+                            className={props.weight_valid ? 'input' : 'input is-danger has-text-danger'}
+                            type={'number'}
+                            value={props.weight}
+                            onChange={props.set_weight}
+                        />
+                        {props.weight_valid ? null : <p className="help is-danger">Invalid weight!</p>}
                     </div>
                 </div>
             ) : null}
@@ -157,6 +177,7 @@ class AddForm extends PureComponent{
             magic: false,
             container: false,
             standalone: false,
+            name_valid: false,
             quantity_valid: true,
             weight_valid: true,
             value_valid: true,
@@ -184,24 +205,33 @@ class AddForm extends PureComponent{
     }
 
     submit(){
-        let location = this.state.location === 0 ? '' : this.props.containers[this.state.location];
-        let id = this.state.details ? get_id(this.state.name) : this.state.name;
+        let valid =
+            this.state.name_valid &&
+            this.state.value_valid &&
+            this.state.weight_valid &&
+            this.state.capacity_valid &&
+            this.state.quantity_valid;
 
-        let item = {
-            name: this.state.name,
-            id: create_id(location, id),
-            type: this.state.type,
-            capacity: this.state.capacity === '' ? 0 : parseInt(this.state.capacity),
-            weight: this.state.weight === '' ? 0 : parseInt(this.state.weight),
-            value: this.state.value === '' ? 0.0 : parseFloat(this.state.value),
-            quantity: this.state.quantity === '' ? 0.0 : parseFloat(this.state.quantity),
-            magic: this.state.magic,
-            contents: this.state.container ? [] : undefined
-        };
-        console.log('submit', item);
+        if (valid){
+            let location = this.state.location === 0 ? '' : this.props.containers[this.state.location];
+            let id = this.state.details ? get_id(this.state.name) : this.state.name;
 
-        this.props.submit(item.id, item);
-        this.reset();
+            let item = {
+                name: this.state.name,
+                id: create_id(location, id),
+                type: this.state.type,
+                capacity: this.state.capacity === '' ? 0 : parseInt(this.state.capacity),
+                weight: this.state.weight === '' ? 0 : parseInt(this.state.weight),
+                value: this.state.value === '' ? 0.0 : parseFloat(this.state.value),
+                quantity: this.state.quantity === '' ? 0.0 : parseFloat(this.state.quantity),
+                magic: this.state.magic,
+                contents: this.state.container ? [] : undefined
+            };
+            console.log('submit', item);
+
+            this.props.submit(item.id, item);
+            this.reset();
+        }
     }
 
     reset(){
@@ -211,18 +241,24 @@ class AddForm extends PureComponent{
 
     set_name(event){
         let details = true;
+        let name_valid = true;
         if (event.target.value === ''){
             details = false;
+            name_valid = false;
         }
-        this.setState({selected: 0, name: event.target.value, details: details});
+        this.setState({selected: 0, name: event.target.value, details: details, name_valid: name_valid});
     }
 
     set_selection(event){
         let selected = parseInt(event.target.value);
-        let item = fromJS(this.props.items[selected - 1]);
-        let container = is_container(item);
+        let new_state = {selected: selected, details: false,};
 
-        let new_state = Object.assign(item.toJS(), {selected: selected, details: false, container: container});
+        if (selected > 0){
+            let item = fromJS(this.props.items[selected - 1]);
+            let container = is_container(item);
+
+            new_state = Object.assign(item.toJS(), new_state, {container: container, name_valid: true});
+        }
 
         console.log(new_state);
 
@@ -310,11 +346,16 @@ class AddForm extends PureComponent{
     }
 
     set_quantity(event){
+        let quantity_valid = true;
         let quantity = parseInt(event.target.value);
         if (isNaN(quantity)){
             quantity = '';
+            quantity_valid = false;
+        } else if (quantity < 1){
+            quantity_valid = false;
         }
-        this.setState({quantity: quantity});
+
+        this.setState({quantity: quantity, quantity_valid: quantity_valid});
     }
 
     inc_quantity(x){
@@ -340,11 +381,13 @@ class AddForm extends PureComponent{
                             set_selection={this.set_selection}
                             name={this.state.name}
                             set_name={this.set_name}
+                            valid={this.state.name_valid}
                         />
                         <QuantityInput
                             quantity={this.state.quantity}
                             set_quantity={this.set_quantity}
                             inc_quantity={this.inc_quantity}
+                            valid={this.state.quantity_valid}
                         />
                         <LocationInput
                             containers={this.props.containers}
@@ -358,12 +401,16 @@ class AddForm extends PureComponent{
                             container={this.state.container}
                             capacity={this.state.capacity}
                             set_capacity={this.set_capacity}
+                            capacity_valid={this.state.capacity_valid}
                             weight={this.state.weight}
                             set_weight={this.set_weight}
+                            weight_valid={this.state.weight_valid}
                             value={this.state.value}
                             set_value={this.set_value}
+                            value_valid={this.state.value_valid}
                             quantity={this.state.quantity}
                             set_quantity={this.set_quantity}
+                            quantity_valid={this.state.quantity_valid}
                         /> : null}
                         <div className={'span-full'}/>
                         <a className={'button is-fullwidth'} onClick={this.submit}>Add</a>
