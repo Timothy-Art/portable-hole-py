@@ -135,7 +135,6 @@ export const create_id = ( container, name ) => {
     let id = name.toLowerCase();
     let re = /(\W|_)+/g;
     id = id.replace(re, '');
-    console.log(id);
 
     if (container !== ''){
         if (is_top_level(container)){

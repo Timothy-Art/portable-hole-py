@@ -245,7 +245,11 @@ class AddForm extends PureComponent{
         if (event.target.value === ''){
             details = false;
             name_valid = false;
+        } else if (create_id('', event.target.value) === ''){
+            details = false;
+            name_valid = false;
         }
+
         this.setState({selected: 0, name: event.target.value, details: details, name_valid: name_valid});
     }
 
