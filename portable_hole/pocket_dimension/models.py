@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+
+from user.models import PHUser
 
 
 class System(models.Model):
@@ -59,8 +60,9 @@ class PortableHole(models.Model):
     Model for PortableHoles. Each row represents a different game. These belong to Users
     """
     name = models.TextField(null=False)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(PHUser, on_delete=models.CASCADE, related_name='owner_of')
     system = models.ForeignKey(System, on_delete=models.CASCADE)
+    party_members = models.ManyToManyField(PHUser, related_name='member_of', blank=True)
     created = models.DateTimeField(auto_now=True)
     contents = models.TextField(null=False, default='{}')
 
@@ -72,4 +74,4 @@ class UserItem(Item):
     """
     Models that extends Item for user added content. These are tied to PortableHole sessions.
     """
-    portablehole = models.ForeignKey(PortableHole, on_delete=models.CASCADE)
+    portable_hole = models.ForeignKey(PortableHole, on_delete=models.CASCADE)

@@ -6,5 +6,5 @@ urlpatterns = [
     path('types/', views.TypeList.as_view()),
     path('categories/', views.CategoryList.as_view()),
     path('items/', views.CategoryList.as_view()),
-    path('portableholes/', views.PortableHoleList.as_view()),
+    path('portable_holes/', views.PortableHoleList.as_view()),
 ]

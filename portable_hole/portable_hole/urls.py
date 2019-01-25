@@ -1,4 +1,4 @@
-"""portablehole URL Configuration
+"""portable_hole URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.0/topics/http/urls/
@@ -21,5 +21,5 @@ urlpatterns = [
     path('', views.index),
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('pocketdimension/', include('pocketdimension.urls')),
+    path('pocket_dimension/', include('pocket_dimension.urls')),
 ]
