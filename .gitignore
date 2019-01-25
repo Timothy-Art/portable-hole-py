@@ -6,4 +6,5 @@ venv
 *.sqlite3
 node_modules
 portablehole/portablehole/src/css/*
+portablehole/portablehole/static/*
 
